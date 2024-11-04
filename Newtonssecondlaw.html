@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newton's Second Law Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .simulation-container {
+            margin-top: 30px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin: 20px;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 1rem;
+            width: 80px;
+            text-align: center;
+        }
+
+        .button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            font-size: 1.2rem;
+            margin: 20px;
+            color: green;
+        }
+
+        .object {
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            position: relative;
+            transition: all 0.5s ease;
+            margin: 0 auto;
+        }
+
+        .track {
+            width: 100%;
+            height: 10px;
+            background-color: black;
+            position: relative;
+            margin-top: 50px;
+        }
+
+        #info {
+            margin: 20px;
+            font-size: 1rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Newton's Second Law of Motion</h1>
+    <p id="info">According to Newton's second law, the acceleration of an object is directly proportional to the net force acting upon it and inversely proportional to its mass. <br> Use the inputs below to see how force and mass affect acceleration!</p>
+
+    <div class="simulation-container">
+        <div class="input-group">
+            <label for="force">Force (F): </label>
+            <input type="number" id="force" placeholder="N">
+        </div>
+
+        <div class="input-group">
+            <label for="mass">Mass (m): </label>
+            <input type="number" id="mass" placeholder="kg">
+        </div>
+
+        <button class="button" onclick="calculate()">Calculate Acceleration</button>
+        <button class="button" onclick="resetSimulation()">Reset</button>
+
+        <div class="result" id="result"></div>
+
+        <div class="track">
+            <div class="object" id="object"></div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            let force = parseFloat(document.getElementById('force').value);
+            let mass = parseFloat(document.getElementById('mass').value);
+
+            // Check for valid input
+            if (isNaN(force) || isNaN(mass) || force <= 0 || mass <= 0) {
+                alert("Please enter valid values for both Force and Mass.");
+                return;
+            }
+
+            // Calculate acceleration
+            let acceleration = force / mass;
+            document.getElementById('result').innerHTML = `Acceleration (a): ${acceleration.toFixed(2)} m/s²`;
+
+            // Animate the object based on acceleration
+            let object = document.getElementById('object');
+            object.style.transform = `translateX(${acceleration * 100}px)`;
+
+            // Change color based on acceleration
+            if (acceleration > 0) {
+                object.style.backgroundColor = acceleration > 5 ? 'green' : 'orange';
+            } else {
+                object.style.backgroundColor = 'red';
+            }
+        }
+
+        function resetSimulation() {
+            document.getElementById('force').value = '';
+            document.getElementById('mass').value = '';
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('object').style.transform = 'translateX(0px)';
+            document.getElementById('object').style.backgroundColor = 'red';
+        }
+    </script>
+
+</body>
+</html>
