@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeroth Law of Thermodynamics Simulation</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background-color: #eaeaea;
+            padding: 20px;
+        }
+        h2 {
+            color: #2c3e50;
+        }
+        #simulation-container {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            border: 2px solid #333;
+            overflow: hidden;
+            background-color: #f0f8ff;
+            margin-bottom: 20px;
+        }
+        .object {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+        }
+        #objectA {
+            background-color: #ff4757; /* Red */
+            top: 100px;
+            left: 50px;
+        }
+        #objectB {
+            background-color: #2ed573; /* Green */
+            top: 100px;
+            left: 230px;
+        }
+        #objectC {
+            background-color: #1e90ff; /* Blue */
+            top: 100px;
+            left: 410px;
+        }
+        .law-statement {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #2c3e50;
+            background-color: #ffffff;
+            color: #2c3e50;
+            font-weight: bold;
+            text-align: center;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #2c3e50;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #equilibrium-state {
+            display: none;
+            font-weight: bold;
+            font-size: 18px;
+            color: #2c3e50;
+            margin-top: 20px;
+        }
+        .arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid #333;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Zeroth Law of Thermodynamics Simulation</h2>
+<div id="simulation-container">
+    <div id="objectA" class="object">A</div>
+    <div id="objectB" class="object">B</div>
+    <div id="objectC" class="object">C</div>
+    <div id="arrowAB" class="arrow" style="display: none;"></div>
+    <div id="arrowBC" class="arrow" style="display: none;"></div>
+    <div id="arrowCA" class="arrow" style="display: none;"></div>
+</div>
+
+<div class="law-statement">
+    <p><strong>Zeroth Law of Thermodynamics:</strong> If A is in thermal equilibrium with B, and B is in thermal equilibrium with C, then A is in thermal equilibrium with C.</p>
+</div>
+
+<button onclick="simulateEquilibrium()">Simulate Equilibrium</button>
+<button onclick="resetSimulation()">Reset</button>
+
+<div id="equilibrium-state"></div>
+
+<script>
+    function simulateEquilibrium() {
+        const objectA = document.getElementById('objectA');
+        const objectB = document.getElementById('objectB');
+        const objectC = document.getElementById('objectC');
+        const equilibriumState = document.getElementById('equilibrium-state');
+        const arrowAB = document.getElementById('arrowAB');
+        const arrowBC = document.getElementById('arrowBC');
+        const arrowCA = document.getElementById('arrowCA');
+
+        // Step 1: Show arrow between A and B
+        showArrow(arrowAB, { x: 70, y: 120 }, { x: 230, y: 120 });
+        setTimeout(() => {
+            // Change color of A and B to represent thermal equilibrium
+            objectA.style.backgroundColor = '#32cd32'; // Lime green for object A
+            objectB.style.backgroundColor = '#32cd32'; // Lime green for object B
+        }, 1000);
+
+        // Step 2: Show arrow between B and C after delay
+        setTimeout(() => {
+            hideArrow(arrowAB);
+            showArrow(arrowBC, { x: 310, y: 120 }, { x: 450, y: 120 }, '#2ed573'); // Green color for B to C
+            setTimeout(() => {
+                // Change color of B and C to represent thermal equilibrium
+                objectB.style.backgroundColor = '#4682b4'; // Steel blue for object B
+                objectC.style.backgroundColor = '#4682b4'; // Steel blue for object C
+            }, 1000);
+        }, 2000);
+
+        // Step 3: Show arrow between C and A bypassing B after delay
+        setTimeout(() => {
+            hideArrow(arrowBC);
+            showArrow(arrowCA, { x: 50, y: 120 }, { x: 450, y: 120 });
+            setTimeout(() => {
+                // Change color of A and C to represent thermal equilibrium
+                objectA.style.backgroundColor = '#4682b4'; // Steel blue for object A
+                objectC.style.backgroundColor = '#4682b4'; // Steel blue for object C
+                equilibriumState.style.display = 'block';
+                equilibriumState.textContent = 'All objects are now in thermal equilibrium!';
+            }, 1000);
+        }, 4000);
+    }
+
+    function showArrow(arrow, start, end, color = '#333') {
+        arrow.style.display = 'block';
+        arrow.style.left = `${start.x}px`;
+        arrow.style.top = `${start.y}px`;
+        const length = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
+        arrow.style.width = `${length}px`;
+        arrow.style.borderBottomColor = color; // Change arrow color
+        arrow.style.transform = `rotate(${Math.atan2(end.y - start.y, end.x - start.x)}rad)`;
+    }
+
+    function hideArrow(arrow) {
+        arrow.style.display = 'none';
+    }
+
+    function resetSimulation() {
+        const objectA = document.getElementById('objectA');
+        const objectB = document.getElementById('objectB');
+        const objectC = document.getElementById('objectC');
+        const equilibriumState = document.getElementById('equilibrium-state');
+        const arrowAB = document.getElementById('arrowAB');
+        const arrowBC = document.getElementById('arrowBC');
+        const arrowCA = document.getElementById('arrowCA');
+
+        // Reset the colors to original
+        objectA.style.backgroundColor = '#ff4757'; // Red
+        objectB.style.backgroundColor = '#2ed573'; // Green
+        objectC.style.backgroundColor = '#1e90ff'; // Blue
+
+        // Hide the equilibrium state message
+        equilibriumState.style.display = 'none';
+
+        // Hide all arrows
+        hideArrow(arrowAB);
+        hideArrow(arrowBC);
+        hideArrow(arrowCA);
+    }
+</script>
+
+</body>
+</html>

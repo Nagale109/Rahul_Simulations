@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Stress-Strain Simulation</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .control-column {
+            width: 30%;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            margin-top: 30px;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        canvas {
+            margin: 20px 0;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Stress-Strain Relationship Simulation</h1>
+
+    <h2>Definitions</h2>
+    <p>
+        <strong>Stress (σ):</strong> The force applied per unit area of a material (N/m² or Pascals).<br>
+        <strong>Strain (ε):</strong> The deformation or displacement of a material relative to its original length (dimensionless).<br>
+        <strong>Hooke's Law:</strong> States that stress is directly proportional to strain within the elastic limit of a material.
+    </p>
+
+    <h2>Input Parameters</h2>
+    <div class="controls">
+        <div class="control-column">
+            <h3>Calculate Stress and Strain</h3>
+            <label for="force">Force (F): 
+                <input type="number" id="force" value="1000" step="100" min="0"> N
+            </label><br>
+            <label for="area">Area (A): 
+                <input type="number" id="area" value="0.01" step="0.001" min="0"> m²
+            </label><br>
+            <label for="material">Select Material: 
+                <select id="material">
+                    <option value="200000">Steel (E = 200 GPa)</option>
+                    <option value="69000">Aluminum (E = 69 GPa)</option>
+                    <option value="110000">Copper (E = 110 GPa)</option>
+                    <option value="130000">Cast Iron (E = 130 GPa)</option>
+                </select>
+            </label><br>
+            <button onclick="calculateStressAndStrain()">Calculate Stress and Strain</button>
+            <div id="result_stress"></div>
+            <div id="result_strain"></div>
+        </div>
+
+        <div class="control-column">
+            <h3>Graph of Stress vs. Strain</h3>
+            <canvas id="stressStrainChart" width="400" height="400"></canvas>
+            <button onclick="updateGraph()">Update Graph</button>
+        </div>
+    </div>
+
+    <h2>Results</h2>
+    <div id="result"></div>
+
+    <script>
+        const ctx = document.getElementById('stressStrainChart').getContext('2d');
+        let chart;
+
+        function calculateStressAndStrain() {
+            const E = parseFloat(document.getElementById('material').value);
+            const force = parseFloat(document.getElementById('force').value);
+            const area = parseFloat(document.getElementById('area').value);
+            let stress = '';
+            let strain = '';
+            let stressValue = 0; // Initialize stressValue
+            let strainValue = 0; // Initialize strainValue
+
+            // Calculate Stress
+            if (area > 0) {
+                stressValue = force / area; // σ = F / A
+                stress = `Calculated Stress (σ): ${stressValue.toFixed(2)} Pa`;
+                
+                // Calculate Strain using Hooke's Law
+                strainValue = stressValue / E; // ε = σ / E
+                strain = `Calculated Strain (ε): ${strainValue.toFixed(4)}`;
+            } else {
+                stress = 'Invalid area. Please ensure it is positive.';
+                strain = '';
+            }
+
+            // Display results
+            document.getElementById('result_stress').innerHTML = stress;
+            document.getElementById('result_strain').innerHTML = strain;
+            updateGraph(stressValue, strainValue); // Update graph with new values
+        }
+
+        function updateGraph(stressValue, strainValue) {
+            const strainValues = [];
+            const stressValues = [];
+
+            for (let i = 0; i <= strainValue; i += 0.001) {
+                strainValues.push(i);
+                stressValues.push((stressValue * i) / strainValue); // Linear relationship for demo
+            }
+
+            if (chart) {
+                chart.destroy(); // Destroy the previous chart instance if it exists
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: strainValues,
+                    datasets: [{
+                        label: 'Stress vs. Strain',
+                        data: stressValues,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Strain (ε)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Stress (σ) [Pa]'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

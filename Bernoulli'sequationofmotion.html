@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bernoulli's Principle Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        canvas {
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .control-label {
+            margin: 5px 0;
+        }
+        #notations {
+            margin-top: 20px;
+            text-align: left;
+        }
+        h2 {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bernoulli's Principle Simulation</h1>
+    <h2>Bernoulli's Equation</h2>
+    <p><strong>P<sub>1</sub> / (ρg) + (v<sub>1</sub><sup>2</sup> / 2g) + z<sub>1</sub> = P<sub>2</sub> / (ρg) + (v<sub>2</sub><sup>2</sup> / 2g) + z<sub>2</sub></strong></p>
+    
+    <div class="controls">
+        <div class="control-label">Pressure (P<sub>1</sub>): 
+            <input type="range" id="pressure" min="100000" max="300000" value="200000" step="1000">
+            <span id="pressureValue">200000</span> Pa
+        </div>
+        <div class="control-label">Velocity (v<sub>1</sub>): 
+            <input type="range" id="velocity1" min="0" max="20" value="10" step="0.1">
+            <span id="velocity1Value">10</span> m/s
+        </div>
+        <div class="control-label">Velocity (v<sub>2</sub>): 
+            <input type="range" id="velocity2" min="0" max="20" value="10" step="0.1">
+            <span id="velocity2Value">10</span> m/s
+        </div>
+        <div class="control-label">Height (z<sub>1</sub>): 
+            <input type="range" id="height1" min="0" max="20" value="5" step="0.1">
+            <span id="height1Value">5</span> m
+        </div>
+        <div class="control-label">Height (z<sub>2</sub>): 
+            <input type="range" id="height2" min="0" max="20" value="5" step="0.1">
+            <span id="height2Value">5</span> m
+        </div>
+        <button onclick="startAnimation()">Start Simulation</button>
+    </div>
+
+    <canvas id="simulationCanvas" width="800" height="400"></canvas>
+
+    <div id="notations">
+        <h2>Notations and Meanings</h2>
+        <p><strong>P:</strong> Pressure of the fluid (Pa)</p>
+        <p><strong>&rho;:</strong> Density of the fluid (kg/m³)</p>
+        <p><strong>v:</strong> Velocity of the fluid (m/s)</p>
+        <p><strong>g:</strong> Acceleration due to gravity (9.81 m/s²)</p>
+        <p><strong>z:</strong> Height above a reference point (m)</p>
+    </div>
+
+    <script>
+        let animationFrame;
+
+        function startAnimation() {
+            cancelAnimationFrame(animationFrame);
+            animateSimulation();
+        }
+
+        function animateSimulation() {
+            const canvas = document.getElementById('simulationCanvas');
+            const ctx = canvas.getContext('2d');
+
+            const rho = 1000; // Density (kg/m³)
+            const g = 9.81; // Gravity (m/s²)
+
+            const P1 = parseFloat(document.getElementById('pressure').value);
+            const v1 = parseFloat(document.getElementById('velocity1').value);
+            const v2 = parseFloat(document.getElementById('velocity2').value);
+            const z1 = parseFloat(document.getElementById('height1').value);
+            const z2 = parseFloat(document.getElementById('height2').value);
+
+            // Calculate P2 using the new formula
+            const P2 = P1 + (0.5 * rho * (v1 ** 2 - v2 ** 2)) + (rho * g * (z1 - z2));
+
+            // Calculate total energies for both sections
+            const totalEnergy1 = (P1 / (rho * g)) + (0.5 * (v1 ** 2) / g) + z1;
+            const totalEnergy2 = (P2 / (rho * g)) + (0.5 * (v2 ** 2) / g) + z2;
+
+            // Calculate individual energies
+            const pressureEnergy1 = P1 / (rho * g);
+            const kineticEnergy1 = 0.5 * (v1 ** 2) / g;
+            const potentialEnergy1 = z1;
+
+            const pressureEnergy2 = P2 / (rho * g);
+            const kineticEnergy2 = 0.5 * (v2 ** 2) / g;
+            const potentialEnergy2 = z2;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Bar 1
+            const totalWidth1 = 300;
+            const pressureBarWidth1 = (pressureEnergy1 / totalEnergy1) * totalWidth1;
+            const kineticBarWidth1 = (kineticEnergy1 / totalEnergy1) * totalWidth1;
+            const potentialBarWidth1 = (potentialEnergy1 / totalEnergy1) * totalWidth1;
+
+            ctx.fillStyle = 'black';
+            ctx.fillText(`Total Energy 1: ${totalEnergy1.toFixed(2)} m`, 100, 50);
+            ctx.fillStyle = 'red';
+            ctx.fillRect(100, 80, pressureBarWidth1, 30);
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(100 + pressureBarWidth1, 80, kineticBarWidth1, 30);
+            ctx.fillStyle = 'green';
+            ctx.fillRect(100 + pressureBarWidth1 + kineticBarWidth1, 80, potentialBarWidth1, 30);
+
+            // Display values for Bar 1
+            ctx.fillStyle = 'red';
+            ctx.fillText(`PE: ${pressureEnergy1.toFixed(2)} m`, 10, 100);
+            ctx.fillStyle = 'blue';
+            ctx.fillText(`KE: ${kineticEnergy1.toFixed(2)} m`, 10, 130);
+            ctx.fillStyle = 'green';
+            ctx.fillText(`PE: ${potentialEnergy1.toFixed(2)} m`, 10, 160);
+
+            // Bar 2
+            const totalWidth2 = 300;
+            const pressureBarWidth2 = (pressureEnergy2 / totalEnergy2) * totalWidth2;
+            const kineticBarWidth2 = (kineticEnergy2 / totalEnergy2) * totalWidth2;
+            const potentialBarWidth2 = (potentialEnergy2 / totalEnergy2) * totalWidth2;
+
+            ctx.fillStyle = 'black';
+            ctx.fillText(`Total Energy 2: ${totalEnergy2.toFixed(2)} m`, 100, 200);
+            ctx.fillStyle = 'red';
+            ctx.fillRect(100, 230, pressureBarWidth2, 30);
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(100 + pressureBarWidth2, 230, kineticBarWidth2, 30);
+            ctx.fillStyle = 'green';
+            ctx.fillRect(100 + pressureBarWidth2 + kineticBarWidth2, 230, potentialBarWidth2, 30);
+
+            // Display values for Bar 2
+            ctx.fillStyle = 'red';
+            ctx.fillText(`PE: ${pressureEnergy2.toFixed(2)} m`, 10, 250);
+            ctx.fillStyle = 'blue';
+            ctx.fillText(`KE: ${kineticEnergy2.toFixed(2)} m`, 10, 280);
+            ctx.fillStyle = 'green';
+            ctx.fillText(`PE: ${potentialEnergy2.toFixed(2)} m`, 10, 310);
+
+            // Display P2 above the second bar
+            ctx.fillStyle = 'black';
+            ctx.fillText(`P2: ${P2.toFixed(2)} Pa`, 100, 220);
+
+            // Indicate that total energy is conserved
+            ctx.fillStyle = 'black';
+            ctx.fillText(`Total Energy of Section 1 = Total Energy of Section 2`, 100, 340);
+            ctx.fillText(`(${totalEnergy1.toFixed(2)} m)`, 100, 360);
+
+            // Recursively call animation
+            animationFrame = requestAnimationFrame(animateSimulation);
+        }
+
+        // Update display values when inputs change
+        document.getElementById('pressure').addEventListener('input', function() {
+            document.getElementById('pressureValue').innerText = this.value;
+        });
+        document.getElementById('velocity1').addEventListener('input', function() {
+            document.getElementById('velocity1Value').innerText = this.value;
+        });
+        document.getElementById('velocity2').addEventListener('input', function() {
+            document.getElementById('velocity2Value').innerText = this.value;
+        });
+        document.getElementById('height1').addEventListener('input', function() {
+            document.getElementById('height1Value').innerText = this.value;
+        });
+        document.getElementById('height2').addEventListener('input', function() {
+            document.getElementById('height2Value').innerText = this.value;
+        });
+    </script>
+</body>
+</html>

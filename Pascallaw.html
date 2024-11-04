@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hydraulic System Simulation - Pascal's Principle</title>
+<style>
+  body { font-family: Arial, sans-serif; background-color: #f0f0f5; text-align: center; }
+  .container { display: flex; justify-content: center; margin-top: 50px; }
+  .piston-container { position: relative; margin: 0 50px; text-align: center; }
+  .small-piston { width: 80px; height: 200px; border: 2px solid black; background-color: #ff4d4d; position: relative; }
+  .large-piston { width: 150px; height: 200px; border: 2px solid black; background-color: #4da6ff; position: relative; }
+  .fluid { position: absolute; bottom: 0; width: 100%; transition: height 1s ease; }
+  .small-fluid { background-color: #0073e6; }
+  .large-fluid { background-color: #ffeb3b; }
+  .arrow { width: 0; height: 0; position: absolute; margin: 10px auto; }
+  .arrow-down { border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 20px solid #e60000; left: 50%; transform: translateX(-50%); }
+  .arrow-up { border-left: 20px solid transparent; border-right: 20px solid transparent; border-bottom: 20px solid #004d99; left: 50%; transform: translateX(-50%); bottom: -30px; }
+  .info { margin-top: 20px; font-weight: bold; color: #333; }
+  .pressure-info { color: #339966; font-size: 1.2em; margin-top: 15px; }
+  button { margin: 20px; padding: 10px 20px; background-color: #1a8cff; color: white; border: none; font-size: 16px; cursor: pointer; }
+  button:hover { background-color: #3399ff; }
+  .formula { font-size: 1.2em; color: #333; margin-top: 15px; font-weight: bold; }
+</style>
+<!-- MathJax Script for Proper Formula Rendering -->
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<h1>Hydraulic System Simulation - Pascal's Principle</h1>
+<p>Observe how force applied to the smaller piston is amplified in the larger piston, demonstrating Pascal's principle.</p>
+
+<div class="formula">
+  <strong>Pascal's Law:</strong><br>
+  <span style="font-size: 1.4em;">\( P_1 = P_2 \Rightarrow \frac{F_1}{A_1} = \frac{F_2}{A_2} \)</span><br>
+  <em>In a static and continuous fluid system, the pressure at any point remains constant according to Pascal's law.</em>
+</div>
+
+<div class="container">
+  <div class="piston-container">
+    <div class="small-piston">
+      <div id="fluidSmall" class="fluid small-fluid" style="height: 50%;"></div>
+      <div class="arrow arrow-down"></div>
+    </div>
+    <p>Small Piston (Red) - Input Force</p>
+  </div>
+
+  <div class="piston-container">
+    <div class="large-piston">
+      <div id="fluidLarge" class="fluid large-fluid" style="height: 30%;"></div>
+      <div class="arrow arrow-up"></div>
+    </div>
+    <p>Large Piston (Blue) - Amplified Force</p>
+  </div>
+</div>
+
+<div class="info">
+  <label for="forceInput">Enter Applied Force (N) on Small Piston:</label>
+  <input type="number" id="forceInput" placeholder="e.g., 10">
+</div>
+<div>
+  <label for="areaSmall">Area of Small Piston (m²):</label>
+  <input type="number" id="areaSmall" placeholder="e.g., 0.001">
+</div>
+<div>
+  <label for="areaLarge">Area of Large Piston (m²):</label>
+  <input type="number" id="areaLarge" placeholder="e.g., 0.005">
+</div>
+
+<button onclick="simulateHydraulics()">Start Simulation</button>
+<button onclick="resetSimulation()">Reset</button>
+
+<div class="pressure-info" id="pressureDisplay"></div>
+<div class="pressure-info" id="outputForceDisplay"></div>
+
+<script>
+function simulateHydraulics() {
+  const force = parseFloat(document.getElementById("forceInput").value);
+  const areaSmall = parseFloat(document.getElementById("areaSmall").value);
+  const areaLarge = parseFloat(document.getElementById("areaLarge").value);
+
+  if (isNaN(force) || isNaN(areaSmall) || isNaN(areaLarge) || areaSmall <= 0 || areaLarge <= 0) {
+    alert("Please enter valid force and area values.");
+    return;
+  }
+
+  // Calculate pressure and output force
+  const pressure = force / areaSmall;
+  const outputForce = pressure * areaLarge;
+
+  // Display pressure equality
+  document.getElementById("pressureDisplay").textContent = `Pressure in Small and Large Piston: ${pressure.toFixed(2)} N/m² (Equal in both systems)`;
+  document.getElementById("outputForceDisplay").textContent = `Amplified Force on Large Piston: ${outputForce.toFixed(2)} N`;
+
+  // Animate fluid levels and arrows
+  document.getElementById("fluidSmall").style.height = "20%";
+  document.getElementById("fluidLarge").style.height = "80%";
+}
+
+function resetSimulation() {
+  document.getElementById("forceInput").value = '';
+  document.getElementById("areaSmall").value = '';
+  document.getElementById("areaLarge").value = '';
+  document.getElementById("pressureDisplay").textContent = '';
+  document.getElementById("outputForceDisplay").textContent = '';
+  document.getElementById("fluidSmall").style.height = "50%";
+  document.getElementById("fluidLarge").style.height = "30%";
+}
+</script>
+
+</body>
+</html>
+

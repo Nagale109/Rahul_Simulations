@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Continuity Equation Simulation with Nozzle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom right, #d3eaf2, #d0e9ff);
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .pipe-system {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .pipe-section {
+            width: 40%;
+            height: 100px;
+            background-color: lightblue;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            margin: 0 10px;
+        }
+
+        .pipe {
+            height: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .nozzle {
+            width: 60%;
+            height: 60px;
+            background-color: lightblue;
+            border-radius: 0 20px 20px 0;
+            position: relative;
+            margin-left: -15%;
+        }
+
+        .particle {
+            width: 10px;
+            height: 10px;
+            background-color: dodgerblue;
+            border-radius: 50%;
+            position: absolute;
+            animation: flow 5s linear infinite;
+        }
+
+        @keyframes flow {
+            0% { left: 0; }
+            100% { left: 100%; }
+        }
+
+        .results {
+            margin-top: 20px;
+            background-color: #dff9fb;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            color: #2980b9;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .nozzle-info {
+            margin-top: 20px;
+            background-color: #ffeaa7;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            color: #d35400;
+        }
+
+        .equation {
+            margin: 20px 0;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Continuity Equation Simulation with Nozzle</h1>
+        <p>Adjust the cross-sectional areas and velocities to see how flow rate is conserved as fluid moves through a nozzle.</p>
+        
+        <div class="equation">
+            <h2>Continuity Equation</h2>
+            <p><strong>Formula:</strong> A<sub>1</sub>V<sub>1</sub> = A<sub>2</sub>V<sub>2</sub></p>
+            <p><strong>Meaning:</strong> The principle of conservation of mass for incompressible fluids.</p>
+            <p><strong>Notation:</strong></p>
+            <ul>
+                <li>A<sub>1</sub> = Cross-sectional area at point 1 (m²)</li>
+                <li>V<sub>1</sub> = Velocity at point 1 (m/s)</li>
+                <li>A<sub>2</sub> = Cross-sectional area at point 2 (m²)</li>
+                <li>V<sub>2</sub> = Velocity at point 2 (m/s)</li>
+            </ul>
+        </div>
+
+        <div class="pipe-system">
+            <div class="pipe-section">
+                <div class="pipe" id="pipe1"></div>
+            </div>
+            
+            <div class="nozzle" id="nozzle">
+                <div class="pipe" id="pipe2"></div>
+            </div>
+        </div>
+        
+        <div class="results">
+            <h2>Flow Rate</h2>
+            <p id="flow-rate">Flow Rate: 50 m³/s</p>
+        </div>
+
+        <label for="area1">Area of Pipe (A<sub>1</sub>): <span id="area1Value">5 m²</span></label>
+        <input type="range" id="area1" min="1" max="10" value="5" oninput="updateValues()"><br>
+
+        <label for="velocity1">Velocity in Pipe (V<sub>1</sub>): <span id="velocity1Value">10 m/s</span></label>
+        <input type="range" id="velocity1" min="1" max="20" value="10" oninput="updateValues()"><br>
+        
+        <label for="nozzleRatio">Nozzle Area Ratio (A<sub>2</sub> / A<sub>1</sub>): <span id="nozzleRatioValue">0.5</span></label>
+        <input type="range" id="nozzleRatio" min="0.1" max="1.0" value="0.5" step="0.01" oninput="updateNozzleArea()"><br>
+
+        <div class="nozzle-info">
+            <p id="nozzleAreaDisplay">Nozzle Area (A<sub>2</sub>): 0 m²</p>
+            <p id="velocity2">Velocity in Nozzle (V<sub>2</sub>): 0 m/s</p>
+        </div>
+    </div>
+    
+    <script>
+        function createParticles(pipeId, count) {
+            const pipe = document.getElementById(pipeId);
+            pipe.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.top = `${Math.random() * 80}px`;
+                pipe.appendChild(particle);
+            }
+        }
+
+        function updateValues() {
+            const area1 = parseFloat(document.getElementById('area1').value);
+            const velocity1 = parseFloat(document.getElementById('velocity1').value);
+            const area2 = area1 * parseFloat(document.getElementById('nozzleRatio').value);
+            const velocity2 = (area1 * velocity1) / area2;
+
+            // Update flow rate
+            const flowRate = area1 * velocity1;
+            document.getElementById('flow-rate').textContent = `Flow Rate: ${flowRate.toFixed(2)} m³/s`;
+            
+            // Update nozzle values
+            document.getElementById('nozzleAreaDisplay').textContent = `Nozzle Area (A2): ${area2.toFixed(2)} m²`;
+            document.getElementById('velocity2').textContent = `Velocity in Nozzle (V2): ${velocity2.toFixed(2)} m/s`;
+
+            // Update displayed values for inputs
+            document.getElementById('area1Value').textContent = `${area1.toFixed(2)} m²`;
+            document.getElementById('velocity1Value').textContent = `${velocity1.toFixed(2)} m/s`;
+            document.getElementById('nozzleRatioValue').textContent = `${(area2 / area1).toFixed(2)}`;
+
+            // Adjust particle counts and speeds
+            createParticles('pipe1', Math.round(area1 * velocity1));
+            createParticles('pipe2', Math.round(area2 * velocity2));
+
+            // Speed up particles in the nozzle section
+            const nozzle = document.querySelectorAll('#pipe2 .particle');
+            nozzle.forEach(particle => {
+                particle.style.animationDuration = `${5 / (velocity2 / velocity1)}s`;
+            });
+        }
+
+        function updateNozzleArea() {
+            updateValues(); // Call updateValues to refresh all parameters based on current settings
+        }
+
+        // Initial call to set values on load
+        updateValues();
+    </script>
+</body>
+</html>
+
