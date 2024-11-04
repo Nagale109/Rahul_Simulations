@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elastic and Plastic Deformation Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f7fa;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #stressStrainGraph {
+            border: 2px solid #333;
+            width: 500px;
+            height: 300px;
+            background-color: #fff;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .bar-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #bar {
+            width: 200px;
+            height: 20px;
+            background-color: #4f8cc9;
+            transition: width 0.3s, transform 0.3s;
+            position: relative;
+        }
+        #loadIndicator {
+            font-size: 24px;
+            margin-right: 10px;
+            color: #e63946;
+        }
+        #materialInfo {
+            font-size: 16px;
+            color: #333;
+            margin: 15px 0;
+        }
+        #elasticRegion, #plasticRegion {
+            position: absolute;
+            bottom: 0;
+            height: 100%;
+        }
+        #elasticRegion {
+            background-color: rgba(144, 238, 144, 0.5);
+            width: 50%;
+        }
+        #plasticRegion {
+            background-color: rgba(255, 99, 71, 0.5);
+            width: 50%;
+            left: 50%;
+        }
+        #dynamicPoint {
+            position: absolute;
+            height: 8px;
+            width: 8px;
+            background-color: blue;
+            border-radius: 50%;
+            transition: left 0.3s, bottom 0.3s;
+        }
+        #status {
+            font-weight: bold;
+            margin: 10px;
+        }
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .arrow-up {
+            border-bottom: 20px solid #e63946;
+        }
+        .arrow-down {
+            border-top: 20px solid #e63946;
+        }
+        .x-axis, .y-axis {
+            position: absolute;
+            background-color: #000;
+        }
+        .x-axis {
+            width: 100%;
+            height: 2px;
+            bottom: 0;
+        }
+        .y-axis {
+            height: 100%;
+            width: 2px;
+            left: 0;
+        }
+        .x-label, .y-label {
+            position: absolute;
+            font-size: 12px;
+            color: #333;
+        }
+        .x-label {
+            bottom: -20px;
+        }
+        .y-label {
+            transform: rotate(-90deg);
+            left: -30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Elastic and Plastic Deformation Simulation</h1>
+    <div class="container">
+
+        <div id="stressStrainGraph">
+            <div id="elasticRegion"></div>
+            <div id="plasticRegion"></div>
+            <div id="dynamicPoint" style="left: 0%; bottom: 0%;"></div>
+            <p style="position: absolute; bottom: 10px; left: 20px; color: green;">Elastic Region</p>
+            <p style="position: absolute; bottom: 10px; right: 20px; color: red;">Plastic Region</p>
+
+            <div class="x-axis"></div>
+            <div class="y-axis"></div>
+
+            <div class="x-label" style="left: 50%; transform: translateX(-50%);">Strain</div>
+            <div class="y-label" style="top: 50%; transform: translateY(-50%);">Stress (MPa)</div>
+
+            <div class="x-label" style="left: 0%;">0</div>
+            <div class="x-label" style="left: 25%;">0.25</div>
+            <div class="x-label" style="left: 50%;">0.5</div>
+            <div class="x-label" style="left: 75%;">0.75</div>
+            <div class="x-label" style="left: 100%;">1.0</div>
+            <div class="y-label" style="top: 100%; left: -30px;">200 MPa</div>
+            <div class="y-label" style="top: 75%; left: -30px;">150 MPa</div>
+            <div class="y-label" style="top: 50%; left: -30px;">100 MPa</div>
+            <div class="y-label" style="top: 25%; left: -30px;">50 MPa</div>
+            <div class="y-label" style="top: 0%; left: -30px;">0 MPa</div>
+
+            <div class="arrow arrow-up" title="Applying Load" style="left: 10%;"></div>
+            <div class="arrow arrow-up" title="Applying Load" style="left: 90%;"></div>
+        </div>
+
+        <div class="bar-container">
+            <div id="loadIndicator">⬅️ Load</div>
+            <div id="bar"></div>
+        </div>
+
+        <input type="range" id="strainSlider" min="0" max="1" step="0.01" value="0" oninput="updateSimulation(this.value)">
+        <label for="strainSlider">Adjust Strain</label>
+
+        <div id="materialInfo">
+            <strong>Material:</strong> Mild Steel<br>
+            <strong>Diameter of Rod:</strong> 10 mm<br>
+            <strong>Young's Modulus (E):</strong> 210 GPa<br>
+            <strong>Yield Strength (σ<sub>y</sub>):</strong> 250 MPa<br>
+            <strong>Ultimate Tensile Strength:</strong> 450 MPa
+        </div>
+
+        <button onclick="resetSimulation()">Reset Simulation</button>
+        <div id="status"></div>
+
+        <div style="width: 500px; text-align: left;">
+            <p><strong>Elastic Deformation:</strong> Temporary, material returns to original shape when load is removed.</p>
+            <p><strong>Plastic Deformation:</strong> Permanent, material does not return to original shape when load is removed.</p>
+        </div>
+
+    </div>
+
+    <script>
+        // Material Properties
+        const yieldStrength = 250; // Yield strength in MPa
+        const youngsModulus = 210000; // Young's modulus in MPa
+
+        // Calculate Critical Strain
+        const criticalStrain = yieldStrength / youngsModulus; // Yield strain
+        console.log("Critical Strain (Yield Strain): ", criticalStrain);
+
+        function updateSimulation(strain) {
+            const bar = document.getElementById("bar");
+            const status = document.getElementById("status");
+            const dynamicPoint = document.getElementById("dynamicPoint");
+            const loadIndicator = document.getElementById("loadIndicator");
+
+            const elasticLimit = criticalStrain; // Use critical strain
+            let stress = youngsModulus * strain; // Stress calculation using Young's modulus
+
+            if (strain <= elasticLimit) {
+                bar.style.width = (200 + strain * 100) + "px";
+                status.innerText = `Stress: ${stress.toFixed(1)} MPa | Strain: ${strain} (Elastic Region)`;
+                loadIndicator.style.color = "green";
+                dynamicPoint.style.backgroundColor = "green";
+            } else {
+                // Adjust the stress calculation for plastic deformation
+                const plasticStrain = strain - elasticLimit;
+                stress = yieldStrength + plasticStrain * ((450 - yieldStrength) / (1 - elasticLimit)); // Linear approximation in plastic region
+                bar.style.width = (200 + elasticLimit * 100 + plasticStrain * 50) + "px"; // Adjust width based on plastic deformation
+                status.innerText = `Stress: ${stress.toFixed(1)} MPa | Strain: ${strain} (Plastic Region)`;
+                loadIndicator.style.color = "red";
+                dynamicPoint.style.backgroundColor = "red";
+            }
+
+            dynamicPoint.style.left = (strain * 100) + "%";
+            dynamicPoint.style.bottom = (stress / 500 * 100) + "%"; // Adjust vertical position based on stress
+        }
+
+        function resetSimulation() {
+            document.getElementById("strainSlider").value = 0;
+            updateSimulation(0);
+        }
+
+        // Initial Setup
+        resetSimulation();
+    </script>
+</body>
+</html>
+
