@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ideal Gas Equation Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            padding: 20px;
+        }
+        #container {
+            width: 300px;
+            height: 300px;
+            border: 2px solid #333;
+            margin: auto;
+            position: relative;
+            background-color: #add8e6; /* Light blue for gas */
+        }
+        h2, h3 {
+            margin: 20px 0;
+        }
+        input[type="range"], input[type="number"] {
+            width: 300px;
+        }
+        #info {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        .particle {
+            width: 10px;
+            height: 10px;
+            background-color: #ff4500; /* Orange color for particles */
+            border-radius: 50%;
+            position: absolute;
+        }
+        .notation {
+            font-size: 0.9em;
+            color: #555;
+        }
+        #constants {
+            margin-top: 20px;
+            font-size: 1em;
+            background-color: #e0f7fa;
+            padding: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ideal Gas Equation Simulation</h1>
+    <div id="container"></div>
+    
+    <h2>Pressure (P): <span id="pressure-value">0</span> Pa</h2>
+
+    <h2>Volume (V): <span id="volume-value">0.1</span> m³</h2>
+    <input type="range" id="volume" min="0.01" max="1" step="0.01" value="0.1">
+    <p class="notation">Notations: V = Volume in m³</p>
+
+    <h2>Temperature (T): <span id="temperature-value">300</span> K</h2>
+    <input type="range" id="temperature" min="200" max="500" step="1" value="300">
+    <p class="notation">Notations: T = Temperature in K</p>
+
+    <h2>Moles (n): <span id="moles-value">1</span> mol</h2>
+    <input type="number" id="moles" min="1" value="1">
+    <p class="notation">Notations: n = Number of moles in mol</p>
+
+    <div id="constants">
+        <h3>Ideal Gas Law: P V = n R T</h3>
+        <p><strong>Where:</strong></p>
+        <ul>
+            <li>P = Pressure (Pa)</li>
+            <li>V = Volume (m³)</li>
+            <li>n = Number of moles (mol)</li>
+            <li>R = Ideal gas constant (8.314 J/(mol·K))</li>
+            <li>T = Temperature (K)</li>
+        </ul>
+    </div>
+
+    <script>
+        const volumeInput = document.getElementById("volume");
+        const temperatureInput = document.getElementById("temperature");
+        const molesInput = document.getElementById("moles");
+        
+        const container = document.getElementById("container");
+        const pressureValueDisplay = document.getElementById("pressure-value");
+
+        function updateSimulation() {
+            const V = parseFloat(volumeInput.value);    // User-defined volume
+            const n = parseFloat(molesInput.value);     // User-defined moles
+            const T = parseFloat(temperatureInput.value); // User-defined temperature
+            const R = 8.314; // Universal gas constant in J/(mol·K)
+
+            // Update the visual representation of gas particles
+            container.innerHTML = ""; // Clear previous particles
+            const numParticles = Math.floor(n * 100); // Scale particles based on moles
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement("div");
+                particle.className = "particle";
+                particle.style.top = Math.random() * 280 + "px";
+                particle.style.left = Math.random() * 280 + "px";
+                container.appendChild(particle);
+            }
+
+            // Calculate the pressure based on the input parameters
+            const calculatedPressure = (n * R * T) / V; // P = nRT/V
+
+            // Display calculated pressure
+            pressureValueDisplay.textContent = calculatedPressure.toFixed(2);
+        }
+
+        volumeInput.addEventListener("input", updateSimulation);
+        temperatureInput.addEventListener("input", updateSimulation);
+        molesInput.addEventListener("input", updateSimulation);
+        
+        // Initial state
+        updateSimulation();
+    </script>
+</body>
+</html>
+
