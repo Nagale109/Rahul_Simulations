@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work and Power Simulation</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: #e0f7fa;
+            color: #333;
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        h1 {
+            margin: 20px;
+            color: #0056b3;
+        }
+
+        #work-explanation, #power-explanation {
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid #0056b3;
+            border-radius: 5px;
+            background-color: #f0f4c3;
+            width: 100%;
+        }
+
+        #simulation-container {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #0056b3;
+            position: relative;
+            background-color: #fff;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        #object {
+            width: 40px;
+            height: 40px;
+            background-color: #ff5722;
+            position: absolute;
+            top: 130px; /* Center vertically */
+            left: 0;
+            border-radius: 5px;
+            transition: left 1s ease-in-out;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #arrow {
+            position: absolute;
+            width: 100px;
+            height: 5px;
+            background-color: #4caf50;
+            transform-origin: left;
+            top: 145px; /* Centered vertically */
+            left: 50px;
+            transition: width 1s ease-in-out;
+            z-index: -1; /* Behind the object */
+        }
+
+        #controls {
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 18px;
+        }
+
+        input[type="number"], button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #0056b3;
+            transition: background-color 0.3s;
+        }
+
+        button:hover, input[type="number"]:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        #result {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        #myChart {
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #555;
+            text-align: center;
+        }
+
+        .label {
+            position: absolute;
+            font-size: 14px;
+            color: #333;
+        }
+
+        #forceLabel, #distanceLabel {
+            z-index: 1; /* Make sure labels are above other elements */
+        }
+
+        #workLabel {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 16px;
+            color: #ff5722;
+            z-index: 2;
+        }
+
+        #conclusion {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #555;
+            text-align: center;
+            background-color: #fff3cd;
+            padding: 10px;
+            border: 1px solid #ffeeba;
+            border-radius: 5px;
+            width: 100%;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Work and Power Simulation</h1>
+    <p>Understand the concepts of work and power through this interactive simulation.</p>
+
+    <div id="work-explanation">
+        <p><strong>Work:</strong> Work is done when a force moves an object over a horizontal distance.</p>
+        <p><strong>Work (W) = Force (F) × Distance (d)</strong></p>
+    </div>
+
+    <div id="simulation-container">
+        <div id="object"></div>
+        <div id="arrow"></div>
+        <div class="label" id="forceLabel" style="left: 10px; top: 10px;">Force (N): </div>
+        <div class="label" id="distanceLabel" style="left: 10px; top: 30px;">Distance (m): </div>
+        <div class="label" id="workLabel">Work Done: 0 Joules</div>
+    </div>
+
+    <div id="controls">
+        <label for="force">Force (N): </label>
+        <input type="number" id="force" value="5" min="1" oninput="updateLabels()">
+        <label for="distance">Distance (m): </label>
+        <input type="number" id="distance" value="100" min="1" oninput="updateLabels()">
+        <button onclick="simulateMovement()">Apply Force & Move</button>
+        <button onclick="reset()">Reset</button>
+    </div>
+
+    <div id="power-explanation">
+        <p><strong>Power:</strong> Power is the rate at which work is done.</p>
+        <p><strong>Power (P) = Work (W) / Time (t)</strong></p>
+        <p>Below the graph shows how power changes with different times for the same amount of work, as calculated.</p>
+    </div>
+
+    <canvas id="myChart"></canvas>
+
+    <div id="conclusion">
+        <p><strong>Conclusion:</strong></p>
+        <p>Power (P): Power is how fast work is done. It tells us the rate of energy transfer and is calculated as:</p>
+        <p><em>P = W / t</em></p>
+        <p>This means that if you do the same work in less time, you use more power.</p>
+        <p>Time (t): The time taken to do work affects power. For a constant amount of work:</p>
+        <ul>
+            <li>More time = Less power</li>
+            <li>Less time = More power</li>
+        </ul>
+    </div>
+
+    <script>
+        const object = document.getElementById('object');
+        const arrow = document.getElementById('arrow');
+        const workDisplay = document.getElementById('workLabel');
+        const forceInput = document.getElementById('force');
+        const distanceInput = document.getElementById('distance');
+        const ctx = document.getElementById('myChart').getContext('2d');
+
+        // Initialize the chart
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Power (Watts)',
+                        data: [],
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        fill: true,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (s)',
+                            font: {
+                                size: 16,
+                                weight: 'bold',
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Power (W)',
+                            font: {
+                                size: 16,
+                                weight: 'bold',
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return `Power: ${tooltipItem.raw.toFixed(2)} W`;
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    point: {
+                        radius: 4,
+                        hoverRadius: 6,
+                        hoverBackgroundColor: 'rgba(255, 99, 132, 1)'
+                    }
+                }
+            }
+        });
+
+        function updateLabels() {
+            const force = parseInt(forceInput.value);
+            const distance = parseInt(distanceInput.value);
+            document.getElementById('forceLabel').innerText = `Force (N): ${force}`;
+            document.getElementById('distanceLabel').innerText = `Distance (m): ${distance}`;
+        }
+
+        function simulateMovement() {
+            const force = parseInt(forceInput.value);
+            const distance = parseInt(distanceInput.value);
+            const work = force * distance; // Work done in Joules
+            workDisplay.innerText = `Work Done: ${work.toFixed(2)} Joules`;
+
+            const timeValues = [1, 2, 3, 4, 5]; // Example time values
+            const powerValues = timeValues.map(t => work / t); // Calculate power for different times
+
+            // Update the chart data
+            myChart.data.labels = timeValues;
+            myChart.data.datasets[0].data = powerValues;
+            myChart.update();
+
+            // Move the object
+            object.style.left = `${distance}px`;
+            arrow.style.width = `${distance}px`;
+        }
+
+        function reset() {
+            object.style.left = `0px`;
+            arrow.style.width = `0px`;
+            workDisplay.innerText = `Work Done: 0 Joules`;
+            forceInput.value = 5;
+            distanceInput.value = 100;
+            updateLabels();
+            myChart.data.labels = [];
+            myChart.data.datasets[0].data = [];
+            myChart.update();
+        }
+
+        reset(); // Initial reset
+    </script>
+</body>
+</html>
+
