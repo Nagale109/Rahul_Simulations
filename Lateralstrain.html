@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lateral and Longitudinal Strain Simulation</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #e0f7fa;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #00796b;
+        }
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .control-column {
+            width: 30%;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+        canvas {
+            margin: 20px 0;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+        .dimension-bar {
+            height: 20px;
+            background-color: #4caf50;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lateral and Longitudinal Strain Simulation</h1>
+
+    <h2>Definitions</h2>
+    <p>
+        <strong>Lateral Strain (ε<sub>lat</sub>):</strong> The strain that occurs in the perpendicular direction to the applied load.<br>
+        <strong>Longitudinal Strain (ε<sub>long</sub>):</strong> The strain that occurs in the direction of the applied load.<br>
+        <strong>Poisson's Ratio (ν):</strong> The ratio of lateral strain to longitudinal strain, indicating how much a material deforms laterally when stretched or compressed.
+    </p>
+
+    <h2>Formulas</h2>
+    <p>
+        The lateral strain can be calculated using the formula:
+        <strong>ε<sub>lat</sub> = -ν × ε<sub>long</sub></strong>
+    </p>
+    <p>
+        Changes in dimensions can be calculated as:
+        <ul>
+            <li><strong>Change in Length:</strong> ΔL = L<sub>0</sub> × ε<sub>long</sub></li>
+            <li><strong>Change in Diameter:</strong> ΔD = D<sub>0</sub> × ε<sub>lat</sub></li>
+        </ul>
+    </p>
+
+    <h2>Input Parameters</h2>
+    <div class="controls">
+        <div class="control-column">
+            <h3>Calculate Strains and Dimensions</h3>
+            <label for="nu">Poisson's Ratio (ν): 
+                <input type="number" id="nu" value="0.3" step="0.01" min="0" max="0.5"> 
+            </label><br>
+            <label for="elongation">Longitudinal Strain (ε<sub>long</sub>): 
+                <input type="number" id="elongation" value="0.01" step="0.01"> 
+            </label><br>
+            <label for="originalLength">Original Length (L<sub>0</sub>) in mm: 
+                <input type="number" id="originalLength" value="100" step="1"> 
+            </label><br>
+            <label for="originalDiameter">Original Diameter (D<sub>0</sub>) in mm: 
+                <input type="number" id="originalDiameter" value="10" step="0.1"> 
+            </label><br>
+            <button onclick="calculateStrainDimensions()">Calculate</button>
+            <div id="result"></div>
+        </div>
+
+        <div class="control-column">
+            <h3>Dimensions Visualization</h3>
+            <div id="lengthBar" class="dimension-bar"></div>
+            <div id="diameterBar" class="dimension-bar"></div>
+            <canvas id="strainChart" width="400" height="400"></canvas>
+            <button onclick="updateGraph()">Update Graph</button>
+        </div>
+    </div>
+
+    <h2>Results</h2>
+    <div id="result"></div>
+
+    <script>
+        const ctx = document.getElementById('strainChart').getContext('2d');
+        let chart;
+
+        function calculateStrainDimensions() {
+            const nu = parseFloat(document.getElementById('nu').value);
+            const elongation = parseFloat(document.getElementById('elongation').value);
+            const originalLength = parseFloat(document.getElementById('originalLength').value);
+            const originalDiameter = parseFloat(document.getElementById('originalDiameter').value);
+            let result = '';
+
+            // Calculate Lateral Strain using the formula
+            if (nu >= 0 && nu <= 0.5 && elongation >= 0) {
+                const lateralStrain = -nu * elongation;
+
+                // Calculate new dimensions
+                const deltaLength = originalLength * elongation;
+                const deltaDiameter = originalDiameter * lateralStrain;
+
+                const newLength = originalLength + deltaLength;
+                const newDiameter = originalDiameter + deltaDiameter;
+
+                result = `Calculated Lateral Strain (ε<sub>lat</sub>): ${lateralStrain.toFixed(6)}<br>
+                          New Length (L<sub>new</sub>): ${newLength.toFixed(2)} mm<br>
+                          New Diameter (D<sub>new</sub>): ${newDiameter.toFixed(2)} mm`;
+
+                updateBars(newLength, newDiameter); // Update visual representation
+                updateGraph(nu, elongation, lateralStrain); // Update graph with new values
+            } else {
+                result = 'Invalid values. Ensure ν is between 0 and 0.5 and ε<sub>long</sub> is non-negative.';
+            }
+
+            // Display results
+            document.getElementById('result').innerHTML = result;
+        }
+
+        function updateBars(newLength, newDiameter) {
+            const lengthBar = document.getElementById('lengthBar');
+            const diameterBar = document.getElementById('diameterBar');
+
+            // Set the width based on new dimensions (for visualization)
+            lengthBar.style.width = `${newLength}px`;
+            lengthBar.style.height = '20px';
+            lengthBar.style.backgroundColor = '#4caf50';
+            lengthBar.innerText = `Length: ${newLength.toFixed(2)} mm`;
+
+            diameterBar.style.width = `${newDiameter * 10}px`; // Scale diameter for visualization
+            diameterBar.style.height = '20px';
+            diameterBar.style.backgroundColor = '#2196F3';
+            diameterBar.innerText = `Diameter: ${newDiameter.toFixed(2)} mm`;
+        }
+
+        function updateGraph(nu, elongation, lateralStrain) {
+            const maxStrain = 0.1; // Set a maximum strain value for the graph
+            const strainValues = [];
+            const lateralStrainValues = [];
+
+            for (let i = 0; i <= maxStrain; i += 0.01) {
+                strainValues.push(i);
+                lateralStrainValues.push(-nu * i); // Calculate lateral strain for each longitudinal strain value
+            }
+
+            if (chart) {
+                chart.destroy(); // Destroy the previous chart instance if it exists
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: strainValues,
+                    datasets: [{
+                        label: 'Lateral Strain vs. Longitudinal Strain',
+                        data: lateralStrainValues,
+                        borderColor: 'rgba(255, 87, 34, 1)',
+                        backgroundColor: 'rgba(255, 87, 34, 0.2)',
+                        borderWidth: 2,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Longitudinal Strain (ε<sub>long</sub>)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Lateral Strain (ε<sub>lat</sub>)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
