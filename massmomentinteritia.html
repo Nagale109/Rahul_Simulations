@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mass Moment of Inertia Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #app {
+            width: 80%;
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            margin: 20px;
+            padding: 15px;
+            background-color: #d4e8f8;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        #simulationCanvas {
+            border: 2px solid #0066cc;
+            margin-top: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        #results {
+            margin-top: 15px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .formula-display {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #fdf0d5;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        label, p {
+            margin: 10px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007acc;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #005f99;
+        }
+
+        .object-label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #444;
+            text-align: center;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Mass Moment of Inertia Simulation</h1>
+        <div class="controls">
+            <label for="objectSelect">Choose an Object:</label>
+            <select id="objectSelect">
+                <option value="solidCylinder">Solid Cylinder</option>
+                <option value="hollowCylinder">Hollow Cylinder</option>
+                <option value="solidSphere">Solid Sphere</option>
+                <option value="rod">Rod</option>
+            </select>
+            
+            <label for="massSlider">Mass (kg):</label>
+            <input type="range" id="massSlider" min="1" max="100" value="10">
+            <span id="massValue">10 kg</span>
+            
+            <label for="dimensionSlider">Radius/Length (m):</label>
+            <input type="range" id="dimensionSlider" min="0.1" max="10" step="0.1" value="1">
+            <span id="dimensionValue">1 m</span>
+
+            <button id="resetButton">Reset</button>
+        </div>
+        
+        <canvas id="simulationCanvas" width="600" height="400"></canvas>
+        <div id="results">
+            <p>Moment of Inertia: <span id="momentOfInertia">0.50</span> kg·m²</p>
+        </div>
+        <div id="formulaDisplay" class="formula-display">
+            <p><strong>Formula:</strong> <span id="inertiaFormula">I = 0.5 × m × r²</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Variables for controls and simulation canvas
+        const objectSelect = document.getElementById('objectSelect');
+        const massSlider = document.getElementById('massSlider');
+        const dimensionSlider = document.getElementById('dimensionSlider');
+        const massValueDisplay = document.getElementById('massValue');
+        const dimensionValueDisplay = document.getElementById('dimensionValue');
+        const momentOfInertiaDisplay = document.getElementById('momentOfInertia');
+        const formulaDisplay = document.getElementById('inertiaFormula');
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Reset button functionality
+        document.getElementById('resetButton').addEventListener('click', () => {
+            objectSelect.value = 'solidCylinder';
+            massSlider.value = 10;
+            dimensionSlider.value = 1;
+            updateSimulation();
+        });
+
+        // Update simulation when controls are changed
+        objectSelect.addEventListener('change', updateSimulation);
+        massSlider.addEventListener('input', updateSimulation);
+        dimensionSlider.addEventListener('input', updateSimulation);
+
+        // Function to calculate moment of inertia based on object type
+        function calculateMomentOfInertia(object, mass, dimension) {
+            let formula = '';
+            let momentOfInertia = 0;
+
+            switch (object) {
+                case 'solidCylinder':
+                    momentOfInertia = 0.5 * mass * Math.pow(dimension, 2); // I = 0.5 * m * r^2
+                    formula = 'I = 0.5 × m × r²';
+                    break;
+                case 'hollowCylinder':
+                    momentOfInertia = mass * Math.pow(dimension, 2); // I = m * r^2
+                    formula = 'I = m × r²';
+                    break;
+                case 'solidSphere':
+                    momentOfInertia = 0.4 * mass * Math.pow(dimension, 2); // I = 0.4 * m * r^2
+                    formula = 'I = 0.4 × m × r²';
+                    break;
+                case 'rod':
+                    momentOfInertia = (1 / 12) * mass * Math.pow(dimension, 2); // I = (1/12) * m * L^2
+                    formula = 'I = (1/12) × m × L²';
+                    break;
+                default:
+                    formula = '';
+            }
+
+            // Update the formula display
+            formulaDisplay.textContent = formula;
+
+            return momentOfInertia;
+        }
+
+        // Update simulation visuals and moment of inertia calculation
+        function updateSimulation() {
+            const selectedObject = objectSelect.value;
+            const mass = parseFloat(massSlider.value);
+            const dimension = parseFloat(dimensionSlider.value);
+
+            // Update display values
+            massValueDisplay.textContent = `${mass} kg`;
+            dimensionValueDisplay.textContent = `${dimension} m`;
+
+            // Calculate and display moment of inertia
+            const momentOfInertia = calculateMomentOfInertia(selectedObject, mass, dimension);
+            momentOfInertiaDisplay.textContent = momentOfInertia.toFixed(2);
+
+            // Clear and redraw canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawObject(selectedObject, dimension);
+        }
+
+        // Drawing function based on selected object type
+        function drawObject(object, dimension) {
+            ctx.beginPath();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#0066cc';
+            ctx.fillStyle = '#b3d9ff';
+
+            // Adjust scale for visualization
+            const scale = 20 * dimension;
+
+            switch (object) {
+                case 'solidCylinder':
+                    ctx.arc(300, 200, scale, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.font = '16px Arial';
+                    ctx.fillStyle = '#333';
+                    ctx.fillText('Solid Cylinder', 250, 370);
+                    break;
+                case 'hollowCylinder':
+                    ctx.arc(300, 200, scale, 0, 2 * Math.PI);
+                    ctx.moveTo(300 + scale * 0.7, 200);
+                    ctx.arc(300, 200, scale * 0.7, 0, 2 * Math.PI);
+                    ctx.font = '16px Arial';
+                    ctx.fillStyle = '#333';
+                    ctx.fillText('Hollow Cylinder', 250, 370);
+                    break;
+                case 'solidSphere':
+                    ctx.arc(300, 200, scale, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.font = '16px Arial';
+                    ctx.fillStyle = '#333';
+                    ctx.fillText('Solid Sphere', 260, 370);
+                    break;
+                case 'rod':
+                    ctx.moveTo(300 - scale, 200);
+                    ctx.lineTo(300 + scale, 200);
+                    ctx.strokeStyle = '#28a745';
+                    ctx.lineWidth = 5;
+                    ctx.font = '16px Arial';
+                    ctx.fillStyle = '#333';
+                    ctx.fillText('Rod', 280, 370);
+                    break;
+            }
+
+            ctx.stroke();
+        }
+
+        // Initialize simulation on load
+        updateSimulation();
+    </script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydrostatic Law Simulation with Dynamic Graph</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        #container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            border: 2px solid #007acc;
+            background-color: #aeeeee;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        #water {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%; /* Full container height */
+            background-color: #007acc;
+        }
+        #object {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 100%; /* Start above the water surface */
+            width: 50px;
+            height: 50px;
+            background-color: #ff5555;
+            border: 2px solid #333;
+            border-radius: 5px;
+        }
+        #graph {
+            width: 400px;
+            height: 200px;
+            margin-top: 20px;
+            border: 2px solid #333;
+            position: relative;
+        }
+        .info {
+            margin-top: 20px;
+            font-size: 16px;
+            text-align: center;
+        }
+        .gauge {
+            margin-top: 20px;
+            width: 200px;
+            height: 20px;
+            background: linear-gradient(to right, #f00, #0f0);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .gauge-fill {
+            height: 100%;
+            background: #0f0;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .label {
+            position: absolute;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #000;
+        }
+        #depthLabel {
+            top: 10px;
+            left: 5px;
+        }
+        #pressureLabel {
+            top: 10px;
+            right: 5px;
+        }
+        #objectLabel {
+            bottom: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Hydrostatic Law Simulation</h1>
+    <div class="info" id="containerHeightLabel">Container Height: 4 m</div>
+    <div id="container">
+        <div id="water"></div>
+        <div id="object"></div>
+    </div>
+    <div class="info">
+        <label for="densityInput">Set Water Density (kg/m³): </label>
+        <input type="number" id="densityInput" value="1000" readonly>
+        <button id="startButton">Start Simulation</button>
+    </div>
+    <div class="gauge">
+        <div class="gauge-fill" id="gaugeFill"></div>
+    </div>
+    <div class="label" id="depthLabel">Water Depth: 0 m</div>
+    <div class="label" id="pressureLabel">Pressure: 0 Pa</div>
+    <canvas id="graph"></canvas>
+    <div class="info" id="explanation" style="display: none; margin-top: 20px;">
+        <strong>Explanation:</strong>
+        <p>The pressure exerted by a fluid in a column increases with depth due to the weight of the fluid above it. This relationship is described by the hydrostatic law: <strong>P = ρgh</strong>, where P is pressure, ρ is fluid density, g is acceleration due to gravity, and h is the depth of the fluid.</p>
+    </div>
+
+    <script>
+        const water = document.getElementById('water');
+        const object = document.getElementById('object');
+        const densityInput = document.getElementById('densityInput');
+        const depthLabel = document.getElementById('depthLabel');
+        const pressureLabel = document.getElementById('pressureLabel');
+        const gaugeFill = document.getElementById('gaugeFill');
+        const graph = document.getElementById('graph');
+        const startButton = document.getElementById('startButton');
+        const explanation = document.getElementById('explanation');
+        const specificWeight = 9800; // N/m³ for water (approx)
+        const g = 9.81; // Acceleration due to gravity (m/s²)
+        let interval;
+
+        startButton.addEventListener('click', function() {
+            // Reset the object position and graph
+            object.style.bottom = '100%'; // Start above the water surface
+            const maxDepth = 500; // Max depth in pixels for 5 m
+            let currentHeight = maxDepth; // Start at the top of the container
+            const density = parseFloat(densityInput.value);
+            const maxPressure = density * g * (5); // Max pressure at 5 m depth
+
+            // Prepare graph
+            const ctx = graph.getContext('2d');
+            ctx.clearRect(0, 0, graph.width, graph.height); // Clear previous graph
+            graph.width = 400;
+            graph.height = 200;
+
+            // Draw X and Y axes
+            drawAxes(ctx);
+
+            // Start object movement
+            interval = setInterval(() => {
+                if (currentHeight >= 0) {
+                    // Move the object down by 10 pixels (1 m)
+                    currentHeight -= 10; // Adjust for slower movement (10 pixels = 1m)
+                    object.style.bottom = currentHeight + 'px'; // Update position
+
+                    // Calculate current pressure
+                    const depthInMeters = (maxDepth - currentHeight) / 100; // Convert pixels to meters
+                    const currentPressure = density * g * depthInMeters; // Current pressure in Pascals
+                    pressureLabel.textContent = `Pressure: ${currentPressure.toFixed(2)} Pa`;
+                    depthLabel.textContent = `Water Depth: ${depthInMeters.toFixed(2)} m`;
+
+                    // Update gauge
+                    const gaugePercentage = Math.min(100, (currentPressure / maxPressure) * 100);
+                    gaugeFill.style.width = gaugePercentage + '%';
+
+                    // Draw graph
+                    drawGraph(ctx, depthInMeters, currentPressure);
+                } else {
+                    clearInterval(interval);
+                }
+            }, 300); // Slow down the simulation speed
+            
+            // Show explanation
+            explanation.style.display = 'block';
+        });
+
+        function drawAxes(ctx) {
+            ctx.clearRect(0, 0, graph.width, graph.height); // Clear previous axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+
+            // Draw X and Y axes
+            ctx.beginPath();
+            ctx.moveTo(50, graph.height); // X-axis
+            ctx.lineTo(50, 0); // Y-axis
+            ctx.moveTo(50, graph.height); // Return to the bottom left corner for the x-axis
+            ctx.lineTo(graph.width, graph.height); // X-axis
+            ctx.stroke();
+
+            // Set X-axis ticks and labels for depth
+            for (let i = 0; i <= 10; i++) {
+                const x = 50 + (i * 30); // X position for ticks
+                ctx.moveTo(x, graph.height);
+                ctx.lineTo(x, graph.height - 5); // Tick length
+                ctx.fillText(`${(i / 2).toFixed(1)} m`, x - 10, graph.height + 15); // Label every 0.5 m
+            }
+
+            // Set Y-axis ticks and labels for pressure (in Pascals)
+            for (let j = 0; j <= 10; j++) {
+                const y = graph.height - (j * 20); // Y position for ticks
+                ctx.moveTo(45, y);
+                ctx.lineTo(50, y); // Tick length
+                ctx.fillText(`${(j * 2000).toFixed(0)} Pa`, 10, y + 5); // Label pressure (adjust scale as needed)
+            }
+            ctx.stroke();
+        }
+
+        function drawGraph(ctx, depth, pressure) {
+            ctx.strokeStyle = '#007acc';
+            ctx.lineWidth = 2;
+
+            // Draw the graph line
+            ctx.beginPath();
+            ctx.moveTo(50, graph.height); // Start point at the bottom left
+
+            // Scale the graph points to fit within the canvas
+            const x = 50 + (depth * 30); // Depth on X-axis
+            const y = graph.height - (pressure / 2000); // Pressure on Y-axis (adjust the scale accordingly)
+            ctx.lineTo(x, y); // Line to the current point
+            ctx.stroke();
+        }
+    </script>
+</body>
+</html>

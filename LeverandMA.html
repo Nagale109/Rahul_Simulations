@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Lever Simulation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #2f4f4f;
+        }
+
+        p {
+            color: #333;
+            font-size: 16px;
+        }
+
+        #simulationContainer {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            border: 2px solid #2f4f4f;
+            background-color: #ffffff;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .lever {
+            position: absolute;
+            height: 10px;
+            width: 450px; /* Initial lever length */
+            background-color: #8b4513;
+            top: 200px;
+            left: 100px;
+            border-radius: 5px;
+        }
+
+        .fulcrum {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #4682b4;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            top: 210px;
+            left: 350px;
+        }
+
+        .load {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #ff6347;
+            top: 140px;
+            left: 450px; /* Load is at the end of the lever */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .effort {
+            position: absolute;
+            width: 10px;
+            height: 80px;
+            background-color: blue;
+            top: 120px;
+            left: 120px;
+            border-radius: 5px;
+        }
+
+        .arrow {
+            position: absolute;
+            border: 15px solid transparent;
+        }
+
+        .arrow-down {
+            border-top: 20px solid blue;
+            top: 100px;
+            left: 125px;
+        }
+
+        .arrow-up {
+            border-bottom: 20px solid red;
+            top: 180px;
+            left: 475px;
+        }
+
+        .label {
+            position: absolute;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .effort-label {
+            color: blue;
+        }
+
+        .load-label {
+            color: #ff6347;
+        }
+
+        .length-label {
+            position: absolute;
+            top: 230px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #formula {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #2f4f4f;
+            background-color: #e6f7ff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px #a8d1e7;
+        }
+
+        #results {
+            margin-top: 15px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        input[type="range"] {
+            width: 500px;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mechanical Advantage of a Lever</h1>
+    <p>Move the fulcrum and observe the change in the effort arm, load arm, and mechanical advantage.</p>
+    <div id="formula">
+        <strong>Mechanical Advantage Formula:</strong> 
+        <em>Mechanical Advantage = Effort Arm / Load Arm</em>
+    </div>
+    <div id="simulationContainer">
+        <div class="lever"></div>
+        <div class="fulcrum" id="fulcrum"></div>
+        <div class="load" id="load">Load</div>
+        <div class="effort"></div>
+        <div class="arrow arrow-down"></div>
+        <div class="arrow arrow-up"></div>
+        <div class="label effort-label" id="effortLabel" style="left: 100px; top: 220px;">Effort</div>
+        <div class="label load-label" id="loadLabel" style="left: 450px; top: 220px;">Load</div>
+        <div class="length-label" id="effortArmLabel">Effort Arm: 0 m</div>
+        <div class="length-label" id="loadArmLabel" style="left: 400px;">Load Arm: 0 m</div>
+        <div class="length-label" id="totalLeverLength" style="top: 260px; left: 220px; color: #2f4f4f;">
+            Total Lever Length: 0 m
+        </div>
+    </div>
+
+    <input type="range" id="fulcrumSlider" min="150" max="400" value="300" oninput="updateSimulation()">
+    <div id="results">
+        <p>Mechanical Advantage: <span id="mechanicalAdvantage">1.0</span></p>
+    </div>
+
+    <script>
+        function updateSimulation() {
+            const fulcrum = document.getElementById('fulcrum');
+            const fulcrumSlider = document.getElementById('fulcrumSlider').value;
+            const effortArmLabel = document.getElementById('effortArmLabel');
+            const loadArmLabel = document.getElementById('loadArmLabel');
+            const totalLeverLengthLabel = document.getElementById('totalLeverLength');
+            const mechanicalAdvantageDisplay = document.getElementById('mechanicalAdvantage');
+
+            // Update fulcrum position
+            fulcrum.style.left = `${fulcrumSlider}px`;
+
+            // Calculate distances
+            const effortArmLength = fulcrumSlider - 100; // Effort is fixed at 100px
+            const loadArmLength = 450 - fulcrumSlider; // Load is fixed at 450px
+
+            // Display arm lengths
+            effortArmLabel.textContent = `Effort Arm: ${(effortArmLength / 100).toFixed(2)} m`;
+            loadArmLabel.textContent = `Load Arm: ${(loadArmLength / 100).toFixed(2)} m`;
+
+            // Calculate total lever length
+            const totalLeverLength = effortArmLength + loadArmLength;
+            totalLeverLengthLabel.textContent = `Total Lever Length: ${(totalLeverLength / 100).toFixed(2)} m`;
+
+            // Calculate and display mechanical advantage
+            const mechanicalAdvantage = (effortArmLength / loadArmLength).toFixed(2);
+            mechanicalAdvantageDisplay.textContent = mechanicalAdvantage;
+        }
+
+        // Initialize the simulation on load
+        updateSimulation();
+    </script>
+</body>
+</html>
+

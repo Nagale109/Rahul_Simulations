@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Center of Mass Simulation</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 2em;
+            color: #0056b3;
+            margin-bottom: 10px;
+        }
+
+        #simulationCanvas {
+            border: 2px solid #0056b3;
+            background-color: #ffffff;
+            margin-top: 10px;
+        }
+
+        .controls {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        #removeMassBtn {
+            background-color: #28a745;
+        }
+
+        #resetBtn {
+            background-color: #dc3545;
+        }
+
+        .definition, .formula {
+            width: 600px;
+            text-align: left;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+
+        .point-info {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        .dim-info {
+            font-weight: bold;
+            color: #0056b3;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Center of Mass</h1>
+
+    <div class="definition">
+        <strong>Center of Mass Definition:</strong> The center of mass of an object is the point at which the mass of the object is evenly distributed and balanced. It represents the average position of all the mass in the object.
+    </div>
+
+    <div class="formula">
+        <strong>Center of Mass Formula:</strong> 
+        \[ x_{cm} = \frac{\sum (m_i \times x_i)}{\sum m_i}, \quad y_{cm} = \frac{\sum (m_i \times y_i)}{\sum m_i} \]
+    </div>
+
+    <canvas id="simulationCanvas" width="600" height="400"></canvas>
+
+    <div class="dim-info" id="dimInfo">Rectangle Dimensions: Width = 400, Height = 200</div>
+
+    <div class="controls">
+        <div>
+            <label>Remove Rows:</label>
+            <input type="number" id="rowsInput" min="0" value="0" placeholder="Rows to Remove">
+        </div>
+        <div>
+            <label>Remove Columns:</label>
+            <input type="number" id="colsInput" min="0" value="0" placeholder="Cols to Remove">
+        </div>
+        <button id="removeMassBtn">Remove Selected Mass</button>
+        <button id="resetBtn">Reset</button>
+    </div>
+    
+    <div class="point-info">
+        Center of Mass Coordinates: (<span id="comX">0.00</span>, <span id="comY">0.00</span>)
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+        const boxWidth = 400;
+        const boxHeight = 200;
+        const squareSize = 20;
+        const rows = boxHeight / squareSize;
+        const cols = boxWidth / squareSize;
+        let squares = [];
+
+        function initializeSquares() {
+            squares = [];
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    squares.push({ x: col * squareSize + 100, y: row * squareSize + 100, mass: 1, removed: false });
+                }
+            }
+        }
+        
+        function calculateCenterOfMass() {
+            let totalMass = 0, xSum = 0, ySum = 0;
+            squares.forEach(square => {
+                if (!square.removed) {
+                    totalMass += square.mass;
+                    xSum += square.x * square.mass;
+                    ySum += square.y * square.mass;
+                }
+            });
+
+            const comX = totalMass > 0 ? xSum / totalMass : 0;
+            const comY = totalMass > 0 ? ySum / totalMass : 0;
+
+            document.getElementById('comX').textContent = comX.toFixed(2);
+            document.getElementById('comY').textContent = comY.toFixed(2);
+
+            return { x: comX, y: comY, totalMass };
+        }
+
+        function drawSimulation(oldCOM) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(100, 100, boxWidth, boxHeight);
+
+            squares.forEach(square => {
+                if (!square.removed) {
+                    ctx.fillStyle = "#007acc";
+                    ctx.fillRect(square.x, square.y, squareSize, squareSize);
+                    ctx.strokeRect(square.x, square.y, squareSize, squareSize);
+                    ctx.fillStyle = "#fff";
+                    ctx.fillText(square.mass, square.x + 5, square.y + 15);
+                }
+            });
+
+            // Draw old center of mass if exists
+            if (oldCOM) {
+                ctx.beginPath();
+                ctx.arc(oldCOM.x, oldCOM.y, 8, 0, 2 * Math.PI);
+                ctx.fillStyle = "rgba(255, 85, 85, 0.5)";
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillText("Old COM", oldCOM.x + 12, oldCOM.y - 10);
+            }
+
+            const centerOfMass = calculateCenterOfMass();
+            ctx.beginPath();
+            ctx.arc(centerOfMass.x, centerOfMass.y, 8, 0, 2 * Math.PI);
+            ctx.fillStyle = "#ff5555";
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillText("New COM", centerOfMass.x + 12, centerOfMass.y - 10);
+        }
+
+        document.getElementById('removeMassBtn').addEventListener('click', () => {
+            const rowsToRemove = parseInt(document.getElementById('rowsInput').value, 10);
+            const colsToRemove = parseInt(document.getElementById('colsInput').value, 10);
+
+            const oldCenterOfMass = calculateCenterOfMass();
+
+            // Remove squares by rows
+            for (let row = 0; row < rowsToRemove; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const index = row * cols + col;
+                    if (index < squares.length) squares[index].removed = true;
+                }
+            }
+
+            // Remove squares by columns
+            for (let row = 0; row < rows; row++) {
+                for (let col = cols - colsToRemove; col < cols; col++) {
+                    const index = row * cols + col;
+                    if (index < squares.length) squares[index].removed = true;
+                }
+            }
+
+            drawSimulation(oldCenterOfMass);
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            initializeSquares();
+            drawSimulation();
+        });
+
+        initializeSquares();
+        drawSimulation();
+    </script>
+</body>
+</html>
+

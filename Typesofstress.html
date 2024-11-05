@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Load Simulation: Tension, Compression, and Shear</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f4f7fc;
+        }
+        h1 {
+            color: #333;
+        }
+        .bar-container {
+            position: relative;
+            width: 150px;
+            height: 200px;
+            margin: 20px;
+        }
+        .bar {
+            width: 100%;
+            height: 100%;
+            background-color: #9ec5fe;
+            border: 2px solid #003366;
+            transition: transform 1s ease-in-out, background-color 0.5s;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .arrow {
+            width: 0;
+            height: 0;
+            border-style: solid;
+            position: absolute;
+        }
+        .arrow-up {
+            border-width: 15px 7px 0 7px;
+            border-color: #333 transparent transparent transparent;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .arrow-down {
+            border-width: 0 7px 15px 7px;
+            border-color: transparent transparent #333 transparent;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .arrow-top-right {
+            border-width: 10px 0 10px 15px;
+            border-color: transparent transparent transparent #333;
+            right: -20px;
+            top: 10px;
+        }
+        .arrow-bottom-left {
+            border-width: 10px 15px 10px 0;
+            border-color: transparent #333 transparent transparent;
+            left: -20px;
+            bottom: 10px;
+        }
+        .dashed-outline {
+            width: 100%;
+            height: 100%;
+            border: 2px dashed #aaa;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        button {
+            padding: 5px 15px;
+            font-size: 16px;
+            margin: 5px;
+            background-color: #0066cc;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #004999;
+        }
+        .definition {
+            margin: 15px 0;
+            text-align: center;
+            background-color: #e8f4fc;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Load Simulation</h1>
+    <div class="controls">
+        <label for="loadType">Select Load Type:</label>
+        <select id="loadType">
+            <option value="tension">Tension</option>
+            <option value="compression">Compression</option>
+            <option value="shear">Shear</option>
+        </select>
+        <button onclick="applyLoad()">Apply Load</button>
+        <button onclick="resetLoad()">Reset</button>
+    </div>
+    <div id="definition" class="definition">Select a load type to see its effect on the bar.</div>
+    <div class="bar-container">
+        <div id="dashedOutline" class="dashed-outline"></div>
+        <div id="bar" class="bar"></div>
+    </div>
+
+    <script>
+        function applyLoad() {
+            const loadType = document.getElementById('loadType').value;
+            const bar = document.getElementById('bar');
+            const dashedOutline = document.getElementById('dashedOutline');
+            const definition = document.getElementById('definition');
+
+            bar.style.transform = 'none'; // Reset transformation
+            dashedOutline.style.transform = 'none'; // Reset dashed outline transformation
+
+            // Remove existing arrows
+            bar.innerHTML = '';
+
+            if (loadType === 'tension') {
+                bar.style.transform = 'scaleY(1.2)';
+                bar.style.backgroundColor = '#99ff99'; // Light green color for tension
+                definition.textContent = 'Tension: A load that stretches the material by pulling it outward.';
+
+                // Add upward and downward arrows for tension
+                const arrowUp = document.createElement('div');
+                arrowUp.classList.add('arrow', 'arrow-up');
+                const arrowDown = document.createElement('div');
+                arrowDown.classList.add('arrow', 'arrow-down');
+                bar.appendChild(arrowUp);
+                bar.appendChild(arrowDown);
+            } else if (loadType === 'compression') {
+                bar.style.transform = 'scaleY(0.8)';
+                bar.style.backgroundColor = '#ff9999'; // Light red color for compression
+                definition.textContent = 'Compression: A load that shortens the material by pushing it inward.';
+
+                // Add upward and downward arrows for compression
+                const arrowDown = document.createElement('div');
+                arrowDown.classList.add('arrow', 'arrow-down');
+                const arrowUp = document.createElement('div');
+                arrowUp.classList.add('arrow', 'arrow-up');
+                bar.appendChild(arrowUp);
+                bar.appendChild(arrowDown);
+            } else if (loadType === 'shear') {
+                bar.style.transform = 'skewX(20deg)';
+                dashedOutline.style.transform = 'skewX(20deg)';
+                bar.style.backgroundColor = '#ffff99'; // Light yellow color for shear
+                definition.textContent = 'Shear: A load that distorts the material by applying parallel forces in opposite directions.';
+
+                // Add arrows for shear
+                const arrowTopRight = document.createElement('div');
+                arrowTopRight.classList.add('arrow', 'arrow-top-right');
+                const arrowBottomLeft = document.createElement('div');
+                arrowBottomLeft.classList.add('arrow', 'arrow-bottom-left');
+                bar.appendChild(arrowTopRight);
+                bar.appendChild(arrowBottomLeft);
+            }
+        }
+
+        function resetLoad() {
+            const bar = document.getElementById('bar');
+            const dashedOutline = document.getElementById('dashedOutline');
+            const definition = document.getElementById('definition');
+
+            bar.style.transform = 'none';
+            dashedOutline.style.transform = 'none';
+            bar.style.backgroundColor = '#9ec5fe'; // Reset color
+            definition.textContent = 'Select a load type to see its effect on the bar.';
+            bar.innerHTML = ''; // Clear arrows
+        }
+    </script>
+</body>
+</html>
+
