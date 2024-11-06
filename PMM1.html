@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PMM1 Dynamic Simulation</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #1e1e2f;
+      color: white;
+    }
+
+    .container {
+      max-width: 800px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    .section-title {
+      font-size: 1.8em;
+      color: #FFD700;
+      margin-bottom: 10px;
+    }
+
+    .description {
+      font-size: 1.1em;
+      color: #ccc;
+      margin-bottom: 15px;
+    }
+
+    .energy-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .machine {
+      width: 200px;
+      height: 200px;
+      border: 3px solid #FFD700;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #FFD700;
+      text-align: center;
+    }
+
+    .arrow {
+      width: 10px;
+      height: 50px;
+      background-color: #4CAF50;
+      position: absolute;
+      font-size: 0.8em;
+      text-align: center;
+    }
+
+    .arrow-up {
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #FF6347;
+      height: 40px;
+    }
+
+    .arrow-down {
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .label {
+      position: absolute;
+      font-size: 0.9em;
+      font-weight: bold;
+      color: #FFD700;
+    }
+
+    .input-label {
+      top: -70px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .output-label {
+      bottom: -70px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .section-button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #444;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .section-button:hover {
+      background-color: #555;
+    }
+
+    .output-message {
+      color: #FFD700;
+      font-weight: bold;
+      margin-top: 10px;
+      font-size: 1.2em;
+    }
+
+    /* Wheel example */
+    .wheel-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 30px;
+      position: relative;
+    }
+
+    .wheel {
+      width: 150px;
+      height: 150px;
+      border: 5px solid #4CAF50;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .spoke {
+      position: absolute;
+      width: 5px;
+      height: 75px;
+      background-color: #FFD700;
+      top: 0;
+      left: 50%;
+      transform-origin: bottom;
+    }
+
+    .spoke-1 { transform: rotate(0deg); }
+    .spoke-2 { transform: rotate(90deg); }
+    .spoke-3 { transform: rotate(180deg); }
+    .spoke-4 { transform: rotate(270deg); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Perpetual Motion Machine of the First Kind (PMM1)</h1>
+    <p class="description">
+      The Perpetual Motion Machine of the First Kind (PMM1) is a hypothetical machine that would violate the First Law of Thermodynamics by outputting energy without any input.
+    </p>
+
+    <!-- Section 1: Energy Flow Comparison -->
+    <div class="section" id="energyFlowSection">
+      <div class="section-title">Energy Flow Comparison</div>
+      <p class="description">In a normal system, energy input and output are balanced. PMM1 claims energy output without input, which violates conservation of energy.</p>
+      <div class="energy-container">
+        <div>
+          <div class="machine" id="normalMachine">
+            Normal System
+            <div class="arrow arrow-up" id="normalInputArrow"></div>
+            <div class="arrow arrow-down" id="normalOutputArrow"></div>
+            <div class="label input-label">Input</div>
+            <div class="label output-label">Output</div>
+          </div>
+        </div>
+        <div>
+          <div class="machine" id="pmm1Machine">
+            PMM1 <br> (Impossible)
+            <div class="arrow arrow-down" id="pmm1OutputArrow"></div>
+            <div class="label output-label">Output</div>
+          </div>
+        </div>
+      </div>
+      <button class="section-button" onclick="toggleEnergyFlow()">Start Energy Flow</button>
+      <button class="section-button" onclick="resetSimulation()">Reset</button>
+      <div class="output-message" id="outputMessage"></div>
+    </div>
+
+    <!-- Section 2: Examples of PMM1 Concepts (Self-Spinning Wheel) -->
+    <div class="section" id="examplesSection">
+      <div class="section-title">Examples of PMM1 Concepts</div>
+      <p class="description">People have tried various designs, such as self-spinning wheels and magnetic devices. Let's see why they don't work.</p>
+      <div class="wheel-container">
+        <div class="wheel" id="wheel">
+          <div class="spoke spoke-1"></div>
+          <div class="spoke spoke-2"></div>
+          <div class="spoke spoke-3"></div>
+          <div class="spoke spoke-4"></div>
+        </div>
+      </div>
+      <button class="section-button" onclick="spinWheel()">Try to Spin Wheel</button>
+      <button class="section-button" onclick="resetWheel()">Reset Wheel</button>
+      <div class="output-message" id="wheelMessage"></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+  <script>
+    let isEnergyFlowing = false;
+    let isWheelSpinning = false;
+
+    // Function to toggle energy flow visualization
+    function toggleEnergyFlow() {
+      isEnergyFlowing = !isEnergyFlowing;
+      const outputMessage = document.getElementById("outputMessage");
+      const button = document.querySelector("#energyFlowSection .section-button");
+
+      if (isEnergyFlowing) {
+        // Start the energy flow animation
+        gsap.to("#normalInputArrow", { y: 20, yoyo: true, repeat: -1, duration: 1, ease: "power1.inOut" });
+        gsap.to("#normalOutputArrow", { y: -20, yoyo: true, repeat: -1, duration: 1, ease: "power1.inOut" });
+        gsap.to("#pmm1OutputArrow", { y: -20, yoyo: true, repeat: -1, duration: 1, ease: "power1.inOut" });
+        outputMessage.innerText = "PMM1 output without input: This is impossible!";
+        button.innerText = "Stop Energy Flow";
+      } else {
+        // Stop the energy flow animation
+        gsap.killTweensOf("#normalInputArrow");
+        gsap.killTweensOf("#normalOutputArrow");
+        gsap.killTweensOf("#pmm1OutputArrow");
+        outputMessage.innerText = "";
+        button.innerText = "Start Energy Flow";
+      }
+    }
+
+    // Function to reset the energy flow simulation
+    function resetSimulation() {
+      // Reset energy flow and labels
+      isEnergyFlowing = false;
+      document.getElementById("outputMessage").innerText = "";
+      const button = document.querySelector("#energyFlowSection .section-button");
+      button.innerText = "Start Energy Flow";
+
+      // Stop all animations
+      gsap.killTweensOf("#normalInputArrow");
+      gsap.killTweensOf("#normalOutputArrow");
+      gsap.killTweensOf("#pmm1OutputArrow");
+    }
+
+    // Function to simulate self-spinning wheel example
+    function spinWheel() {
+      if (!isWheelSpinning) {
+        isWheelSpinning = true;
+        const wheelMessage = document.getElementById("wheelMessage");
+        wheelMessage.innerText = "The wheel spins briefly, but stops without continuous input.";
+
+        // Spin the wheel briefly
+        gsap.to("#wheel", { rotation: 360, duration: 2, ease: "power1.out", onComplete: () => {
+          isWheelSpinning = false;
+          wheelMessage.innerText = "The wheel cannot maintain perpetual motion without input.";
+        }});
+      }
+    }
+
+    // Function to reset the wheel
+    function resetWheel() {
+      isWheelSpinning = false;
+      document.getElementById("wheelMessage").innerText = "";
+
+      // Stop the wheel animation
+      gsap.killTweensOf("#wheel");
+      gsap.to("#wheel", { rotation: 0, duration: 0 }); // Reset to initial rotation
+    }
+  </script>
+</body>
+</html>
