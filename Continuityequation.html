@@ -99,30 +99,57 @@
 
         .equation {
             margin: 20px 0;
-            background-color: #f9f9f9;
+            background: linear-gradient(to right, #f9f9f9, #e8f3fc);
             padding: 15px;
             border-radius: 10px;
             font-size: 1.1em;
             color: #2c3e50;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .notation {
+            display: none;
+            text-align: left;
+            color: #2980b9;
+            font-size: 1em;
+            line-height: 1.8em;
+            margin-top: 10px;
+        }
+
+        .notation span {
+            display: block;
+            padding: 5px;
+            background: rgba(0, 181, 204, 0.1);
+            border-radius: 5px;
+            margin-bottom: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        #know-more-btn {
+            background-color: #2980b9;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        #know-more-btn:hover {
+            background-color: #1f6398;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Continuity Equation Simulation with Nozzle</h1>
-        <p>Adjust the cross-sectional areas and velocities to see how flow rate is conserved as fluid moves through a nozzle.</p>
+        <h1>Continuity Equation</h1>
+        <p>It states that the mass flow rate of a fluid remains constant along a streamline in steady, incompressible flow.</p>
         
         <div class="equation">
-            <h2>Continuity Equation</h2>
             <p><strong>Formula:</strong> A<sub>1</sub>V<sub>1</sub> = A<sub>2</sub>V<sub>2</sub></p>
             <p><strong>Meaning:</strong> The principle of conservation of mass for incompressible fluids.</p>
-            <p><strong>Notation:</strong></p>
-            <ul>
-                <li>A<sub>1</sub> = Cross-sectional area at point 1 (m²)</li>
-                <li>V<sub>1</sub> = Velocity at point 1 (m/s)</li>
-                <li>A<sub>2</sub> = Cross-sectional area at point 2 (m²)</li>
-                <li>V<sub>2</sub> = Velocity at point 2 (m/s)</li>
-            </ul>
         </div>
 
         <div class="pipe-system">
@@ -153,6 +180,17 @@
             <p id="nozzleAreaDisplay">Nozzle Area (A<sub>2</sub>): 0 m²</p>
             <p id="velocity2">Velocity in Nozzle (V<sub>2</sub>): 0 m/s</p>
         </div>
+
+        <!-- Know More Button -->
+        <button id="know-more-btn" onclick="toggleNotation()">Know More</button>
+
+        <!-- Notation Section -->
+        <div class="notation">
+            <span>A<sub>1</sub> = Cross-sectional area at point 1 (m²)</span>
+            <span>V<sub>1</sub> = Velocity at point 1 (m/s)</span>
+            <span>A<sub>2</sub> = Cross-sectional area at point 2 (m²)</span>
+            <span>V<sub>2</sub> = Velocity at point 2 (m/s)</span>
+        </div>
     </div>
     
     <script>
@@ -173,37 +211,28 @@
             const area2 = area1 * parseFloat(document.getElementById('nozzleRatio').value);
             const velocity2 = (area1 * velocity1) / area2;
 
-            // Update flow rate
-            const flowRate = area1 * velocity1;
-            document.getElementById('flow-rate').textContent = `Flow Rate: ${flowRate.toFixed(2)} m³/s`;
-            
-            // Update nozzle values
-            document.getElementById('nozzleAreaDisplay').textContent = `Nozzle Area (A2): ${area2.toFixed(2)} m²`;
-            document.getElementById('velocity2').textContent = `Velocity in Nozzle (V2): ${velocity2.toFixed(2)} m/s`;
+            // Smooth transition for flow rate
+            gsap.to('#flow-rate', { duration: 1, textContent: `Flow Rate: ${(area1 * velocity1).toFixed(2)} m³/s`, ease: "power1.inOut" });
 
-            // Update displayed values for inputs
-            document.getElementById('area1Value').textContent = `${area1.toFixed(2)} m²`;
-            document.getElementById('velocity1Value').textContent = `${velocity1.toFixed(2)} m/s`;
-            document.getElementById('nozzleRatioValue').textContent = `${(area2 / area1).toFixed(2)}`;
+            // Smooth transition for nozzle area and velocity
+            gsap.to('#nozzleAreaDisplay', { duration: 1, textContent: `Nozzle Area (A₂): ${area2.toFixed(2)} m²`, ease: "power1.inOut" });
+            gsap.to('#velocity2', { duration: 1, textContent: `Velocity in Nozzle (V₂): ${velocity2.toFixed(2)} m/s`, ease: "power1.inOut" });
 
-            // Adjust particle counts and speeds
-            createParticles('pipe1', Math.round(area1 * velocity1));
-            createParticles('pipe2', Math.round(area2 * velocity2));
-
-            // Speed up particles in the nozzle section
-            const nozzle = document.querySelectorAll('#pipe2 .particle');
-            nozzle.forEach(particle => {
-                particle.style.animationDuration = `${5 / (velocity2 / velocity1)}s`;
-            });
+            // Animate particle movement
+            createParticles('pipe1', 50);
+            createParticles('pipe2', 50);
         }
 
         function updateNozzleArea() {
-            updateValues(); // Call updateValues to refresh all parameters based on current settings
+            updateValues();
         }
 
-        // Initial call to set values on load
+        function toggleNotation() {
+            const notation = document.querySelector('.notation');
+            notation.style.display = notation.style.display === 'none' ? 'block' : 'none';
+        }
+
         updateValues();
     </script>
 </body>
 </html>
-
