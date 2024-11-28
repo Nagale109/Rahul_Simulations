@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coefficient of Friction Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            padding: 10px;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        h1 {
+            color: #4CAF50;
+            font-size: 1.8em;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .formula {
+            font-size: 1.5em;
+            margin-top: 10px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .input-field {
+            margin: 10px 0;
+            padding: 12px;
+            width: 90%;
+            max-width: 500px;
+            font-size: 1.2em;
+            box-sizing: border-box;
+        }
+        .button {
+            padding: 12px 25px;
+            font-size: 1.2em;
+            margin-top: 20px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 250px;
+        }
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        .feedback.correct {
+            color: green;
+        }
+        .feedback.wrong {
+            color: red;
+        }
+        .answer {
+            margin-top: 20px;
+            display: none;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .solution {
+            margin-top: 20px;
+            font-size: 1.2em;
+            text-align: left;
+            display: none;
+        }
+        .solution p {
+            margin: 5px 0;
+        }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5em;
+            }
+            .input-field, .button {
+                font-size: 1em;
+                width: 80%;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.3em;
+            }
+            .input-field {
+                font-size: 0.9em;
+                width: 75%;
+            }
+            .button {
+                font-size: 1em;
+            }
+        }
+        .know-more {
+            font-size: 1.2em;
+            margin-top: 20px;
+            color: #007BFF;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .know-more-details {
+            font-size: 1.1em;
+            color: #333;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* Remove bullet points */
+        .know-more-details ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Find the Coefficient of Friction</h1>
+    <img src="https://edwisely-global-content.s3.ap-south-1.amazonaws.com/Concept_Summary_Cards/HtmlImages/image20241128112628.png" alt="Friction Concept">
+    
+    <div class="formula">
+        F = μR
+    </div>
+
+    <!-- Know More Button -->
+    <div class="know-more" onclick="toggleKnowMoreDetails()">Know More</div>
+    
+    <!-- Explanation of the formula -->
+    <div class="know-more-details" id="knowMoreDetails">
+        <p><strong>Explanation of Terms:</strong></p>
+        <ul>
+            <li><strong>F:</strong> Friction force (N).</li>
+            <li><strong>μ:</strong> Coefficient of Friction (unit less)</li>
+            <li><strong>R:</strong> Normal force(N).</li>
+        </ul>
+        
+        <ul>
+            <li><strong>F = P ( Friction Force = Horizontal force on body ):</strong> This is because of horizontal equilibirium.</li>
+            <li><strong>R = W (Normal Force = Weight):</strong> This is because of vertical equilibirium </li>
+        </ul>
+    </div>
+
+    <div>
+        <label for="weight">Body Weight (N):</label><br>
+        <input type="number" id="weight" class="input-field" placeholder="Enter Body Weight in Newtons"><br>
+    </div>
+
+    <div>
+        <label for="force">Horizontal Force (N):</label><br>
+        <input type="number" id="force" class="input-field" placeholder="Enter Horizontal Force in Newtons"><br>
+    </div>
+
+    <div>
+        <label for="coefficient"> Validate coefficient of friction (μ):</label><br>
+        <input type="number" id="coefficient" class="input-field" placeholder="Enter Coefficient of Friction"><br>
+    </div>
+
+    <button class="button" onclick="checkAnswer()">Submit Answer</button>
+    <div class="feedback" id="feedback"></div>
+    <div class="answer" id="correctAnswer">Correct Answer: <span id="correctAnswerText"></span></div>
+    <button class="button" onclick="showCorrectAnswer()">Show Correct Answer</button>
+    
+    <!-- Reset Button -->
+    <button class="button" onclick="resetFields()">Reset</button>
+    
+    <div class="solution" id="detailedSolution">
+        <h2>Detailed Solution</h2>
+        <p>To calculate the coefficient of friction (μ), we use the following formula:</p>
+        <p><strong>μ = Horizontal Force (N) / Body Weight (N)</strong></p>
+        <p>Where:</p>
+        <ul>
+            <li><strong>Horizontal Force (N)</strong> is the force applied parallel to the surface to move the object.</li>
+            <li><strong>Body Weight (N)</strong> is the force due to gravity acting on the body, perpendicular to the surface.</li>
+        </ul>
+        <p><strong>Step-by-step Calculation:</strong></p>
+        <p id="calculationSteps"></p>
+    </div>
+</div>
+
+<script>
+    function toggleKnowMoreDetails() {
+        var details = document.getElementById("knowMoreDetails");
+        details.style.display = details.style.display === "none" ? "block" : "none";
+    }
+
+    function checkAnswer() {
+        var weight = document.getElementById("weight").value;
+        var force = document.getElementById("force").value;
+        var userCoefficient = document.getElementById("coefficient").value;
+
+        // Validate the inputs
+        if (weight === "" || force === "" || userCoefficient === "") {
+            alert("Please enter all values!");
+            return;
+        }
+
+        // Calculate the normal force (assuming horizontal surface)
+        var normalForce = parseFloat(weight);
+
+        // Calculate the correct coefficient of friction
+        var correctCoefficient = parseFloat(force) / normalForce;
+
+        // Check if user's answer is correct
+        if (Math.abs(userCoefficient - correctCoefficient) < 0.01) {
+            document.getElementById("feedback").innerHTML = "Correct! Great job!";
+            document.getElementById("feedback").className = "feedback correct";
+        } else {
+            document.getElementById("feedback").innerHTML = "Wrong Answer! Try Again.";
+            document.getElementById("feedback").className = "feedback wrong";
+        }
+    }
+
+    function showCorrectAnswer() {
+        var weight = document.getElementById("weight").value;
+        var force = document.getElementById("force").value;
+
+        // Calculate the correct coefficient of friction
+        var correctCoefficient = parseFloat(force) / parseFloat(weight);
+
+        // Show the correct answer
+        document.getElementById("correctAnswer").style.display = "block";
+        document.getElementById("correctAnswerText").textContent = correctCoefficient.toFixed(2);
+
+        // Show detailed solution
+        var steps = `1. Horizontal Force = ${force} N.<br>2. Body Weight = ${weight} N.<br>3. Coefficient of Friction (μ) = Horizontal Force / Body Weight = ${force} / ${weight} = ${correctCoefficient.toFixed(2)}.`;
+        document.getElementById("calculationSteps").innerHTML = steps;
+
+        document.getElementById("detailedSolution").style.display = "block";
+    }
+
+    // Reset function to clear the fields and feedback
+    function resetFields() {
+        document.getElementById("weight").value = "";
+        document.getElementById("force").value = "";
+        document.getElementById("coefficient").value = "";
+        document.getElementById("feedback").innerHTML = "";
+        document.getElementById("correctAnswer").style.display = "none";
+        document.getElementById("detailedSolution").style.display = "none";
+    }
+</script>
+
+</body>
+</html>
