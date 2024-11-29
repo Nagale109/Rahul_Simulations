@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lami's Theorem</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    /* Global Styles */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #f0f8ff;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      color: #1e90ff;
+      font-size: 1.5rem;
+    }
+
+    #simulation-image {
+      width: 100%;
+      max-width: 400px;
+      margin: 10px auto;
+    }
+
+    .formula {
+      font-size: 1.2rem;
+      text-align: center;
+      margin: 15px 0;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .know-more {
+      margin: 15px 0;
+      text-align: center;
+    }
+
+    .know-more button {
+      background-color: #1e90ff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    .know-more button:hover {
+      background-color: #104e8b;
+    }
+
+    .inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .inputs div {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+      max-width: 200px;
+    }
+
+    label {
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: 100%;
+      max-width: 160px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #1e90ff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+      width: 100%;
+      max-width: 200px;
+    }
+
+    button:hover {
+      background-color: #104e8b;
+    }
+
+    #feedback {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    #proof {
+      margin-top: 20px;
+      font-size: 1rem;
+      color: #444;
+      display: none;
+    }
+
+    footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    /* Media Queries for Responsiveness */
+    @media screen and (max-width: 768px) {
+      header h1 {
+        font-size: 1.5rem;
+      }
+
+      .formula {
+        font-size: 1.1rem;
+      }
+
+      label {
+        font-size: 0.9rem;
+      }
+
+      input {
+        font-size: 0.9rem;
+      }
+
+      button {
+        font-size: 1rem;
+      }
+
+      #feedback {
+        font-size: 1rem;
+      }
+
+      footer {
+        font-size: 0.9rem;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      header h1 {
+        font-size: 1.2rem;
+      }
+
+      .formula {
+        font-size: 1rem;
+      }
+
+      .know-more button {
+        font-size: 0.9rem;
+      }
+
+      label {
+        font-size: 0.8rem;
+      }
+
+      input {
+        font-size: 0.8rem;
+      }
+
+      button {
+        font-size: 0.9rem;
+      }
+
+      #feedback {
+        font-size: 1rem;
+      }
+
+      footer {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Lami's Theorem </h1>
+      <img id="simulation-image" src="https://edwisely-global-content.s3.ap-south-1.amazonaws.com/Concept_Summary_Cards/HtmlImages/image20241125050750.png" alt="Lami's Theorem Diagram">
+    </header>
+
+    <!-- MathJax Formula (Ensure correct syntax and rendering) -->
+    <div class="formula">
+      $$\frac{F_1}{\sin(\theta_1)} = \frac{F_2}{\sin(\theta_2)} = \frac{F_3}{\sin(\theta_3)}$$
+    </div>
+
+    <div class="know-more">
+      <button id="knowMoreBtn">Know More</button>
+      <p id="lamiStatement" style="display: none; font-size: 1rem; color: #444; margin-top: 10px;">
+        Lami's theorem states: *If three forces acting at a point are in equilibrium, each force is proportional to the sine of the angle between the other two forces.*
+      </p>
+    </div>
+
+    <!-- Display Fixed Angles and Forces -->
+    <div id="fixedAngles" style="margin-top: 15px; font-size: 1rem;">
+      <p><strong>Fixed Angles:</strong></p>
+      <p>θ₁ = 90°</p>
+      <p>θ₂ = 60°</p>
+      <p>θ₃ = 30°</p>
+
+      <p><strong>Fixed Forces:</strong></p>
+      <p>F₁ = 60 N</p>
+      <p>F₃ = 30 N</p>
+    </div>
+
+    <main>
+      <div class="inputs">
+        <!-- Only Input for F₂ -->
+        <div>
+          <label for="force2">Force 2 (F₂):</label>
+          <input type="number" id="force2" placeholder="Enter F₂ (N)">
+        </div>
+        <button id="checkBtn">Check Solution</button>
+        <button id="resetBtn">Reset</button>
+
+        <div id="feedback"></div>
+      </div>
+    </main>
+
+    <!-- Proof Section -->
+    <div id="proof" style="display:none;">
+      <p><strong>Proof of Lami's Theorem:</strong></p>
+      <p>The equation for Lami's Theorem is: $$ \frac{F_1}{\sin(\theta_1)} = \frac{F_2}{\sin(\theta_2)} = \frac{F_3}{\sin(\theta_3)} $$</p>
+      <p>Substituting the fixed values:</p>
+      <p>$$ \frac{60}{\sin(90^\circ)} = \frac{F_2}{\sin(60^\circ)} = \frac{30}{\sin(30^\circ)} $$</p>
+      <p>Now, solving for F₂:</p>
+      <p>$$ F_2 = \frac{60 \times \sin(60^\circ)}{\sin(30^\circ)} $$</p>
+      <p>$$ F_2 = 34.64 N $$</p>
+    </div>
+
+    <footer>
+      <p>&copy; 2024 Lami's Theorem Simulation Game. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script>
+    // Fixed values for forces and angles
+    const correctF2 = 34.64;
+
+    // Event listeners for buttons
+    document.getElementById('checkBtn').addEventListener('click', () => {
+      const f2 = parseFloat(document.getElementById('force2').value);
+
+      if (Math.abs(f2 - correctF2) < 0.01) {
+        document.getElementById('feedback').innerText = 'Congratulations! F₂ satisfies Lami\'s Theorem.';
+        document.getElementById('proof').style.display = 'none'; // Hide proof if correct
+      } else {
+        document.getElementById('feedback').innerText = 'Input does not satisfy Lami\'s Theorem. Here is the proof:';
+        document.getElementById('proof').style.display = 'block'; // Show proof if incorrect
+      }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      document.getElementById('force2').value = '';
+      document.getElementById('feedback').innerText = '';
+      document.getElementById('proof').style.display = 'none';
+    });
+
+    document.getElementById('knowMoreBtn').addEventListener('click', () => {
+      const lamiStatement = document.getElementById('lamiStatement');
+      lamiStatement.style.display = lamiStatement.style.display === 'none' ? 'block' : 'none';
+    });
+  </script>
+</body>
+</html>
