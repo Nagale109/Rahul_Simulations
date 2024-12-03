@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Varignon's Theorem Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #eef2f3;
+            color: #333;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        .statement {
+            background: linear-gradient(45deg, #007bff, #00c6ff);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+            font-family: 'Trebuchet MS', sans-serif;
+        }
+
+        .statement span {
+            font-size: 1.5em;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .statement b {
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        p {
+            margin: 10px 0;
+            color: #555;
+        }
+
+        .diagram {
+            width: 100%;
+            max-width: 400px;
+            display: block;
+            margin: 20px auto;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .formula-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .formula {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .input-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        #checkSolutionBtn,
+        #resetBtn {
+            margin-top: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #knowMore {
+            text-align: left;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #007bff;
+        }
+
+        #knowMore div {
+            margin: 5px 0;
+        }
+
+        #solution {
+            text-align: center;
+            background-color: #f4f8fb;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            color: #222;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Varignon's Theorem</h1>
+        
+        <p class="statement">
+            <span>Theorem Statement:</span>
+            <b>
+                The moment of the resultant of all the forces in a plane about any point 
+                is equal to the algebraic sum of the moments of all the forces about the same point.
+            </b>
+        </p>
+
+        <img src="https://edwisely-global-content.s3.ap-south-1.amazonaws.com/Concept_Summary_Cards/HtmlImages/image20241203105733.png" alt="Varignon Diagram" class="diagram">
+        
+        <div class="formula-section">
+            <p><b>Formula:</b></p>
+            <p class="formula">R × d = P × d<sub>1</sub> + Q × d<sub>2</sub></p>
+            <button id="knowMoreBtn">Know More</button>
+            <div id="knowMore" class="hidden">
+                <div><b>R:</b> Resultant force</div>
+                <div><b>d:</b> Perpendicular distance of R from the reference point</div>
+                <div><b>P:</b> Force P acting on the plane</div>
+                <div><b>d<sub>1</sub>:</b> Perpendicular distance of P from the reference point</div>
+                <div><b>Q:</b> Force Q acting on the plane</div>
+                <div><b>d<sub>2</sub>:</b> Perpendicular distance of Q from the reference point</div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <p><b>Fixed Values:</b></p>
+            <p>P = 10 N, Q = 15 N, d<sub>1</sub> = 4 m, d<sub>2</sub> = 3 m, d = 5 m</p>
+            <label for="inputR">Enter the value of R:</label>
+            <input type="number" id="inputR" placeholder="Enter R">
+            <button id="validateBtn">Validate</button>
+        </div>
+
+        <div id="message" class="hidden"></div>
+        <button id="checkSolutionBtn" class="hidden">Check Solution</button>
+
+        <div id="solution" class="hidden">
+            <h3>Solution:</h3>
+            <p>Moment of P = P × d<sub>1</sub> = 10 × 4 = 40 Nm</p>
+            <p>Moment of Q = Q × d<sub>2</sub> = 15 × 3 = 45 Nm</p>
+            <p>Total Moment = 40 + 45 = 85 Nm</p>
+            <p>From R × d = Total Moment:</p>
+            <p>R = Total Moment / d = 85 / 5 = 17 N</p>
+        </div>
+
+        <button id="resetBtn" class="hidden">Reset</button>
+    </div>
+    <script>
+        const knowMoreBtn = document.getElementById('knowMoreBtn');
+        const validateBtn = document.getElementById('validateBtn');
+        const checkSolutionBtn = document.getElementById('checkSolutionBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const inputR = document.getElementById('inputR');
+        const message = document.getElementById('message');
+        const solution = document.getElementById('solution');
+        const knowMore = document.getElementById('knowMore');
+
+        const correctR = 17; // Pre-calculated value
+
+        knowMoreBtn.addEventListener('click', function () {
+            knowMore.classList.toggle('hidden');
+        });
+
+        validateBtn.addEventListener('click', function () {
+            const inputValue = parseFloat(inputR.value);
+
+            if (inputValue === correctR) {
+                message.textContent = "🎉 Congratulations! You have successfully validated Varignon's Theorem.";
+                message.style.color = "green";
+                message.classList.remove('hidden');
+                checkSolutionBtn.classList.add('hidden');
+            } else {
+                message.textContent = "❌ Incorrect. Please try again or check the solution.";
+                message.style.color = "red";
+                message.classList.remove('hidden');
+                checkSolutionBtn.classList.remove('hidden');
+            }
+
+            resetBtn.classList.remove('hidden');
+        });
+
+        checkSolutionBtn.addEventListener('click', function () {
+            solution.classList.remove('hidden');
+        });
+
+        resetBtn.addEventListener('click', function () {
+            inputR.value = "";
+            message.classList.add('hidden');
+            checkSolutionBtn.classList.add('hidden');
+            solution.classList.add('hidden');
+            resetBtn.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
