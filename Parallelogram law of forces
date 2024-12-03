@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Law of Parallelogram Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 700px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        .section-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .question {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .options label {
+            padding: 10px;
+            background-color: #f7f7f7;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .options label:hover {
+            background-color: #e0e0e0;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .message {
+            font-size: 1.2em;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .solution {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 4px solid #007bff;
+        }
+
+        .reset-btn {
+            margin-top: 20px;
+        }
+
+        #formula {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 20px;
+            text-align: center;
+            color: #007bff;
+        }
+
+        #know-more {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #know-more-details {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f7f7f7;
+            border-radius: 5px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .image-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Law of Parallelogram Quiz</h1>
+
+        <!-- Image Section -->
+        <div class="image-container">
+            <img src="https://edwisely-global-content.s3.ap-south-1.amazonaws.com/Concept_Summary_Cards/HtmlImages/image20241203114229.png" alt="Law of Parallelogram">
+        </div>
+
+        <!-- Law of Parallelogram Statement -->
+        <p class="section-title">Law of Parallelogram:</p>
+        <p>If two forces, acting at a point, are represented in magnitude and direction by the two adjacent sides of a parallelogram, then their resultant is represented in magnitude and direction by the diagonal of the parallelogram passing through that point.</p>
+
+        <!-- Dynamic Quiz Section -->
+        <div id="question-container">
+            <p class="question" id="question"></p>
+
+            <div class="options" id="options"></div>
+
+            <button id="submit-btn">Submit Answer</button>
+            <div id="message" class="message hidden"></div>
+            <div id="solution" class="solution hidden"></div>
+
+            <!-- "See Solution" button appears after answer submission -->
+            <button id="see-solution-btn" class="hidden">See Solution</button>
+
+            <!-- Reset button -->
+            <button id="reset-btn" class="reset-btn hidden">Reset Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What is the magnitude of the resultant force if two forces of 10 N and 15 N act at an angle of 60°?",
+                options: ["25 N", "20 N", "18.3 N", "30 N"],
+                correctAnswer: "18.3 N",
+                solution: "The resultant force is calculated using the formula: R = √(F1² + F2² + 2*F1*F2*cos(θ)) = √(10² + 15² + 2*10*15*cos(60°)) = 18.3 N"
+            },
+            {
+                question: "If two forces of 5 N and 8 N act at an angle of 90°, what is the resultant force?",
+                options: ["10 N", "11.66 N", "13 N", "8.5 N"],
+                correctAnswer: "11.66 N",
+                solution: "The resultant force is calculated using the formula: R = √(F1² + F2²) = √(5² + 8²) = 11.66 N"
+            },
+            {
+                question: "When two forces of 12 N and 18 N are applied at an angle of 45°, what is the magnitude of the resultant?",
+                options: ["24 N", "21.2 N", "18.9 N", "14 N"],
+                correctAnswer: "21.2 N",
+                solution: "The resultant force is calculated using the formula: R = √(F1² + F2² + 2*F1*F2*cos(θ)) = √(12² + 18² + 2*12*18*cos(45°)) = 21.2 N"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let selectedAnswer = "";
+
+        // Function to load a new question
+        function loadQuestion() {
+            const question = questions[currentQuestionIndex];
+            const questionText = document.getElementById("question");
+            const optionsContainer = document.getElementById("options");
+            const submitBtn = document.getElementById("submit-btn");
+            const message = document.getElementById("message");
+            const seeSolutionBtn = document.getElementById("see-solution-btn");
+            const solution = document.getElementById("solution");
+            const resetBtn = document.getElementById("reset-btn");
+
+            // Set the question text
+            questionText.textContent = question.question;
+
+            // Clear previous options
+            optionsContainer.innerHTML = "";
+
+            // Add new options
+            question.options.forEach(option => {
+                const label = document.createElement("label");
+                label.innerHTML = `<input type="radio" name="option" value="${option}"> ${option}`;
+                label.addEventListener("click", () => {
+                    selectedAnswer = option;
+                });
+                optionsContainer.appendChild(label);
+            });
+
+            // Hide message, solution, and reset button initially
+            message.classList.add("hidden");
+            solution.classList.add("hidden");
+            resetBtn.classList.add("hidden");
+            seeSolutionBtn.classList.add("hidden");
+
+            // Show the "See Solution" button after submitting the answer
+            submitBtn.addEventListener("click", () => {
+                if (selectedAnswer === question.correctAnswer) {
+                    message.textContent = "🎉 Correct answer!";
+                    message.style.color = "green";
+                    message.classList.remove("hidden");
+                } else {
+                    message.textContent = "❌ Incorrect answer. Try again!";
+                    message.style.color = "red";
+                    message.classList.remove("hidden");
+                }
+
+                // Show the "See Solution" button after submitting the answer
+                seeSolutionBtn.classList.remove("hidden");
+            });
+
+            // See Solution button functionality
+            seeSolutionBtn.addEventListener("click", () => {
+                solution.innerHTML = `<b>Solution:</b> ${question.solution}`;
+                solution.classList.remove("hidden");
+            });
+
+            // Show the "Reset Quiz" button after the answer is submitted or solution is shown
+            resetBtn.classList.remove("hidden");
+        }
+
+        // Reset the quiz
+        document.getElementById("reset-btn").addEventListener("click", () => {
+            currentQuestionIndex = Math.floor(Math.random() * questions.length);
+            loadQuestion();
+        });
+
+        // Initialize the quiz
+        loadQuestion();
+    </script>
+</body>
+</html>
